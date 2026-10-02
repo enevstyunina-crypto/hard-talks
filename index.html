@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренажер жестких переговоров</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body {
+  background: radial-gradient(ellipse at top, #1a2332 0%, #0a0e1a 70%);
+  color: #e0e6ed; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+}
+#app {
+  width: 100%; max-width: 900px; background: rgba(15, 25, 45, 0.95);
+  border-radius: 24px; padding: 40px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(100,150,255,0.1);
+  position: relative; overflow: hidden;
+}
+#app::before {
+  content: ''; position: absolute; top: -100px; right: -100px; width: 300px; height: 300px;
+  background: radial-gradient(circle, var(--opponent-color, #4a9eff) 0%, transparent 70%);
+  opacity: 0.1; pointer-events: none; transition: background 0.5s;
+}
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.4s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+h1 {
+  font-size: 2em; font-weight: 800; text-align: center; margin-bottom: 12px;
+  background: linear-gradient(90deg, #e0e6ed 0%, var(--opponent-color, #4a9eff) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.subtitle { text-align: center; color: #8899aa; margin-bottom: 32px; }
+.role-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.role-btn {
+  background: rgba(30,45,70,0.8); border: 2px solid rgba(100,150,255,0.3); border-radius: 16px;
+  padding: 32px 24px; cursor: pointer; transition: all 0.3s; color: #e0e6ed;
+  text-align: center; display: flex; flex-direction: column; gap: 10px;
+}
+.role-btn:hover { border-color: #4a9eff; background: rgba(40,60,100,0.9); transform: translateY(-4px); }
+.role-icon { font-size: 3em; }
+.role-title { font-size: 1.3em; font-weight: 700; }
+.role-desc { font-size: 0.85em; color: #8899aa; }
+.opponent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.opponent-card {
+  background: rgba(30,45,70,0.8); border: 2px solid rgba(100,150,255,0.3); border-radius: 16px;
+  padding: 24px 20px; cursor: pointer; transition: all 0.3s; color: #e0e6ed;
+  text-align: center; display: flex; flex-direction: column; gap: 8px;
+}
+.opponent-card:hover { border-color: var(--card-color, #4a9eff); background: rgba(40,60,100,0.9); transform: translateY(-4px); }
+.opponent-card[data-opponent="shark"] { --card-color: #ff6b6b; }
+.opponent-card[data-opponent="hawk"] { --card-color: #ff9f43; }
+.opponent-card[data-opponent="bear"] { --card-color: #74b9ff; }
+.opponent-card[data-opponent="spider"] { --card-color: #a855f7; }
+.opponent-icon { font-size: 2.8em; }
+.opponent-name { font-size: 1.2em; font-weight: 700; }
+.opponent-tag { font-size: 0.75em; color: var(--card-color, #4a9eff); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+.opponent-desc { font-size: 0.85em; color: #8899aa; }
+.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(100,150,255,0.15); }
+.opponent-info { display: flex; align-items: center; gap: 12px; font-size: 1.1em; font-weight: 600; }
+.timer { background: rgba(255,80,80,0.15); border: 1px solid rgba(255,80,80,0.4); padding: 10px 20px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #ff3b3b; letter-spacing: 1px; }
+.timer.warning { animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; padding: 20px; background: rgba(10,20,40,0.7); border-radius: 14px; }
+.stat { display: flex; flex-direction: column; gap: 8px; }
+.stat-label { font-size: 0.75em; color: #8899aa; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+.stat-bar { height: 10px; background: rgba(255,255,255,0.08); border-radius: 5px; overflow: hidden; }
+.stat-fill { height: 100%; transition: width 0.6s; border-radius: 5px; }
+.stat-fill.pressure { background: linear-gradient(90deg, #ff3b3b, #ff8a8a); }
+.stat-fill.deal { background: linear-gradient(90deg, #4ade80, #86efac); }
+.stat-fill.survival { background: linear-gradient(90deg, #4a9eff, #93c5fd); }
+.stat span:last-child { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; }
+.dialog { background: rgba(10,20,40,0.8); border-left: 4px solid var(--opponent-color, #4a9eff); padding: 24px; border-radius: 12px; margin-bottom: 20px; min-height: 100px; line-height: 1.7; max-height: 400px; overflow-y: auto; }
+.dialog .speaker { color: var(--opponent-color, #4a9eff); font-weight: 700; margin-bottom: 8px; display: block; }
+.dialog .player-reply { color: #4ade80; font-weight: 700; margin-top: 14px; display: block; }
+.dialog .system-msg { color: #ffc850; font-style: italic; margin-top: 14px; display: block; }
+.choices { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.choice-btn {
+  background: rgba(30,45,70,0.8); border: 2px solid rgba(100,150,255,0.3); border-radius: 12px;
+  padding: 16px 20px; cursor: pointer; transition: all 0.2s; color: #e0e6ed; text-align: left;
+  font-size: 0.95em; line-height: 1.6;
+}
+.choice-btn:hover { border-color: #4a9eff; background: rgba(40,60,100,0.9); transform: translateX(6px); }
+.choice-btn .choice-tag { display: inline-block; font-size: 0.7em; padding: 3px 10px; border-radius: 6px; margin-right: 10px; font-weight: 700; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.tag-attack { background: rgba(255,80,80,0.2); color: #ff3b3b; }
+.tag-pause { background: rgba(255,200,80,0.2); color: #ffc850; }
+.tag-defense { background: rgba(80,200,120,0.2); color: #4ade80; }
+.tag-question { background: rgba(100,150,255,0.2); color: #4a9eff; }
+.hint-btn { background: rgba(255,200,80,0.1); border: 1px solid rgba(255,200,80,0.3); color: #ffc850; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+.hint-btn:hover { background: rgba(255,200,80,0.2); }
+.hint-content { margin-top: 12px; padding: 16px; background: rgba(255,200,80,0.08); border-left: 3px solid #ffc850; border-radius: 10px; font-size: 0.9em; line-height: 1.6; color: #e0d0a0; }
+.restart-btn { margin-top: 20px; background: rgba(100,150,255,0.15); border: 1px solid rgba(100,150,255,0.4); color: #4a9eff; padding: 14px 28px; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; }
+.restart-btn:hover { background: rgba(100,150,255,0.25); }
+.result-header { text-align: center; margin-bottom: 32px; }
+.result-icon { font-size: 4em; margin-bottom: 16px; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.result-stat { background: rgba(30,45,70,0.8); border: 1px solid rgba(100,150,255,0.3); border-radius: 12px; padding: 20px; text-align: center; }
+.result-stat-label { font-size: 0.8em; color: #8899aa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.result-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 2em; font-weight: 700; }
+.result-stat-value.pressure { color: #ff3b3b; }
+.result-stat-value.deal { color: #4ade80; }
+.result-stat-value.survival { color: #4a9eff; }
+.result-analysis { background: rgba(10,20,40,0.6); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+.result-analysis h3 { margin-bottom: 16px; color: #4a9eff; }
+.analysis-item { padding: 12px 0; border-bottom: 1px solid rgba(100,150,255,0.1); line-height: 1.6; font-size: 0.95em; }
+.analysis-item:last-child { border-bottom: none; }
+.analysis-item .label { font-weight: 700; margin-right: 8px; }
+.analysis-item.good .label { color: #4ade80; }
+.analysis-item.bad .label { color: #ff3b3b; }
+.analysis-item.neutral .label { color: #ffc850; }
+.result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.primary-btn { background: linear-gradient(135deg, #4a9eff, #2563eb); color: white; padding: 16px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 1em; }
+.secondary-btn { background: rgba(100,150,255,0.1); border: 1px solid rgba(100,150,255,0.4); color: #4a9eff; padding: 16px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1em; }
+.hidden { display: none !important; }
+@media (max-width: 600px) {
+  #app { padding: 24px; }
+  .role-selection, .opponent-grid { grid-template-columns: 1fr; }
+  .stats-panel, .result-stats, .result-actions { grid-template-columns: 1fr; }
+  h1 { font-size: 1.5em; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ВЫБОР РОЛИ -->
+  <div id="role-screen" class="screen active">
+    <h1>Тренажер жестких переговоров</h1>
+    <p class="subtitle">Выберите свою роль</p>
+    <div class="role-selection">
+      <button class="role-btn" data-role="seller">
+        <span class="role-icon">💼</span>
+        <span class="role-title">Продавец</span>
+        <span class="role-desc">Заключите сделку и выживите</span>
+      </button>
+      <button class="role-btn" data-role="rop">
+        <span class="role-icon">👔</span>
+        <span class="role-title">РОП</span>
+        <span class="role-desc">Наблюдайте и анализируйте</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ВЫБОР ПРОТИВНИКА -->
+  <div id="opponent-screen" class="screen">
+    <h1>Выберите противника</h1>
+    <p class="subtitle">4 типа жестких переговорщиков</p>
+    <div class="opponent-grid">
+      <button class="opponent-card" data-opponent="shark">
+        <div class="opponent-icon">🦈</div>
+        <div class="opponent-name">Акула</div>
+        <div class="opponent-tag">Атака и скорость</div>
+        <div class="opponent-desc">Прямолинейна, нетерпелива</div>
+      </button>
+      <button class="opponent-card" data-opponent="hawk">
+        <div class="opponent-icon">🦅</div>
+        <div class="opponent-name">Ястреб</div>
+        <div class="opponent-tag">Агрессия и напор</div>
+        <div class="opponent-desc">Бьет быстро, предсказуем</div>
+      </button>
+      <button class="opponent-card" data-opponent="bear">
+        <div class="opponent-icon">🐻‍❄️</div>
+        <div class="opponent-name">Белый медведь</div>
+        <div class="opponent-tag">Правила и процедуры</div>
+        <div class="opponent-desc">Ссылается на регламенты</div>
+      </button>
+      <button class="opponent-card" data-opponent="spider">
+        <div class="opponent-icon">🕷️</div>
+        <div class="opponent-name">Паук</div>
+        <div class="opponent-tag">Скрытое влияние</div>
+        <div class="opponent-desc">Мягкий, манипулятивный</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ИГРА -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <div class="opponent-info">
+        <span id="opponent-icon-header">🦈</span>
+        <span id="opponent-name-header">Виктор — Акула</span>
+      </div>
+      <div class="timer" id="timer">00:30</div>
+    </div>
+    <div id="stats-panel" class="stats-panel hidden">
+      <div class="stat">
+        <span class="stat-label">Давление</span>
+        <div class="stat-bar"><div id="pressure-bar" class="stat-fill pressure"></div></div>
+        <span id="pressure-value">50</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Сделка</span>
+        <div class="stat-bar"><div id="deal-bar" class="stat-fill deal"></div></div>
+        <span id="deal-value">10</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Выживание</span>
+        <div class="stat-bar"><div id="survival-bar" class="stat-fill survival"></div></div>
+        <span id="survival-value">100</span>
+      </div>
+    </div>
+    <div id="dialog" class="dialog"></div>
+    <div id="choices" class="choices"></div>
+    <div>
+      <button id="hint-btn" class="hint-btn">💡 Подсказка тренера</button>
+      <div id="hint-content" class="hint-content hidden"></div>
+    </div>
+  </div>
+
+  <!-- РЕЗУЛЬТАТЫ -->
+  <div id="result-screen" class="screen">
+    <div class="result-header">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <h1 id="result-title">Победа!</h1>
+      <p class="subtitle" id="result-subtitle"></p>
+    </div>
+    <div class="result-stats" id="result-stats"></div>
+    <div class="result-analysis">
+      <h3>📊 Разбор переговоров</h3>
+      <div id="analysis-content"></div>
+    </div>
+    <div class="result-actions">
+      <button id="play-again-btn" class="primary-btn">🔁 Играть снова</button>
+      <button id="change-opponent-btn" class="secondary-btn">🎯 Сменить противника</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// СЦЕНАРИИ — 4 противника × 3 раунда (для компактности)
+// ============================================================
+const scenarios = {
+  shark: {
+    name: "Виктор — Акула", icon: "🦈", color: "#ff6b6b",
+    intro: "Акула давит временем. Слабость — нетерпеливость. Держите удар.",
+    rounds: [
+      { line: "У меня 15 минут. Ваши конкуренты предложили 4,5 млн. Что скажете?",
+        hint: "Акула проверяет на прочность. Пауза = слабость. Отвечайте фактом или вопросом.",
+        choices: [
+          { tag: "attack", tagLabel: "Атака", text: "Виктор, если цена — единственный критерий, мы закончим. Наша система окупается за 4 месяца.", effects: { pressure: -20, deal: +10, survival: +5 }, response: "Хорошо. Докажите. У вас 5 минут." },
+          { tag: "pause", tagLabel: "Пауза", text: "(Молчание) Понимаю вашу позицию. Давайте уточню...", effects: { pressure: +15, deal: -5, survival: -10 }, response: "Пауза? Вы либо не уверены, либо тянете время. Конкретику!" },
+          { tag: "defense", tagLabel: "Защита", text: "Мы не самые дешёвые, но качество... У нас есть скидки.", effects: { pressure: +25, deal: -10, survival: -20 }, response: "Скидки? Не узнав моих объёмов? Непрофессионально." },
+        ]},
+      { line: "Конкурент за 4,2 млн за 2 недели. Ваш срок — месяц. Почему я должен ждать?",
+        hint: "Не уступайте сразу. Вопрос на вопрос — собьет темп.",
+        choices: [
+          { tag: "question", tagLabel: "Контратака", text: "А что вы теряете за 2 недели? Если конкурент ошибётся, потери больше. Давайте о рисках.", effects: { pressure: -15, deal: +15, survival: +10 }, response: "Риски — это разговор. Что предлагаете?" },
+          { tag: "defense", tagLabel: "Уступка", text: "Ускорим до 3 недель, если подпишете сегодня.", effects: { pressure: +20, deal: -5, survival: -15 }, response: "3 недели? Значит, можете за 2. Скидка 10%." },
+          { tag: "pause", tagLabel: "Игнор", text: "Вернёмся к функционалу. У нас есть модуль прогнозирования.", effects: { pressure: +30, deal: -15, survival: -20 }, response: "Вы меня не слышите. Минута." },
+        ]},
+      { line: "Финальное: 4,8 млн, внедрение 3 недели, эксклюзив 2 года. Если экономия <10% — возвращаете 20%. Согласны?",
+        hint: "Не соглашайтесь вслепую — зафиксируйте KPI и пилот.",
+        choices: [
+          { tag: "attack", tagLabel: "Принять с условием", text: "Принимаю. Но фиксируем KPI и подписываем акт после пилота.", effects: { pressure: -10, deal: +30, survival: +5 }, response: "Договорились. Присылайте документы.", isFinal: true, outcome: "win" },
+          { tag: "defense", tagLabel: "Торговаться", text: "4,8 — выше рынка. Давайте 4,6 и обучение бесплатно.", effects: { pressure: +10, deal: +15, survival: -5 }, response: "4,6? Ладно, 4,7. Последняя уступка.", isFinal: true, outcome: "win-partial" },
+          { tag: "attack", tagLabel: "Отказаться", text: "Виктор, вы не готовы к партнёрству. Вот визитка.", effects: { pressure: +20, deal: -50, survival: -10 }, response: "Визитка? Всего доброго.", isFinal: true, outcome: "lose" },
+        ]},
+    ],
+  },
+  hawk: {
+    name: "Игорь — Ястреб", icon: "🦅", color: "#ff9f43",
+    intro: "Ястреб бьет быстро. Слабость — предсказуемость. Задайте вопрос — собьете шаблон.",
+    rounds: [
+      { line: "У меня мало времени. Либо лучшая цена прямо сейчас, либо я иду к другим.",
+        hint: "Не поддавайтесь. Вопрос — собьет шаблон.",
+        choices: [
+          { tag: "question", tagLabel: "Вопрос", text: "Что важнее — цена или результат? Если результат, обсудим как обеспечим.", effects: { pressure: -20, deal: +10, survival: +5 }, response: "Результат? Ну давай. Что конкретно?" },
+          { tag: "defense", tagLabel: "Уступка", text: "Скидка 10% прямо сейчас.", effects: { pressure: +25, deal: -5, survival: -15 }, response: "10%? Не уважаешь. Давай 20%." },
+          { tag: "pause", tagLabel: "Пауза", text: "Минуту подумать...", effects: { pressure: +15, deal: -10, survival: -10 }, response: "Думать? Нет времени." },
+        ]},
+      { line: "Ты можешь дать 4,5 млн? Да или нет?",
+        hint: "Не давайте 'да/нет'. Расширьте рамку.",
+        choices: [
+          { tag: "question", tagLabel: "Расширить", text: "'Да/нет' — не переговоры. Покажу что входит в 4,5.", effects: { pressure: -15, deal: +15, survival: +10 }, response: "Ладно, показывай. Если не понравится — ухожу." },
+          { tag: "attack", tagLabel: "Жестко", text: "Нет. 4,5 — ниже себестоимости.", effects: { pressure: +10, deal: -20, survival: -5 }, response: "Угрожаешь? Найду других." },
+          { tag: "defense", tagLabel: "Компромисс", text: "4,7 и обучение бесплатно.", effects: { pressure: +15, deal: +5, survival: -10 }, response: "4,7? Как на базаре. Я сказал 4,5." },
+        ]},
+      { line: "Готов подписать. Но: скидка 15% и обучение бесплатно. Иначе ухожу.",
+        hint: "Не соглашайтесь сразу — уточните что взамен.",
+        choices: [
+          { tag: "question", tagLabel: "Уточнить", text: "15% — много. Что взамен? Если объём — обсудим. Если просто так — это не сделка.", effects: { pressure: -10, deal: +25, survival: +10 }, response: "Логично. 10% и объём 2 года. Готовь бумаги.", isFinal: true, outcome: "win" },
+          { tag: "defense", tagLabel: "Согласиться", text: "Хорошо, 15% и обучение.", effects: { pressure: +15, deal: +10, survival: -10 }, response: "Отлично. Но не выполните — разорву.", isFinal: true, outcome: "win-partial" },
+          { tag: "attack", tagLabel: "Отказаться", text: "15% — нереально.", effects: { pressure: +20, deal: -40, survival: -10 }, response: "Тогда не договоримся.", isFinal: true, outcome: "lose" },
+        ]},
+    ],
+  },
+  bear: {
+    name: "Сергей — Белый медведь", icon: "🐻‍❄️", color: "#74b9ff",
+    intro: "Медведь опирается на регламенты. Слабость — бюрократия. Правила против правил.",
+    rounds: [
+      { line: "Ваше КП не соответствует регламенту. Пункт 4.2 — сроки. Пункт 7.1 — гарантии. Поясните.",
+        hint: "Не спорьте с правилами — используйте их.",
+        choices: [
+          { tag: "question", tagLabel: "Уточнить", text: "Какой именно срок вызывает вопросы? Адаптируем под регламент.", effects: { pressure: -15, deal: +10, survival: +5 }, response: "30 дней. Норма — 21. Уложитесь — обсудим." },
+          { tag: "defense", tagLabel: "Оправдание", text: "У нас сложный продукт, 30 дней обоснованы...", effects: { pressure: +20, deal: -10, survival: -15 }, response: "Регламент не обсуждается." },
+          { tag: "pause", tagLabel: "Пауза", text: "Минутку, посмотрю документы...", effects: { pressure: +10, deal: -5, survival: -10 }, response: "У нас регламент. Перенесем встречу." },
+        ]},
+      { line: "Пункт 7.1 — гарантии. У вас 12 месяцев, у нас норма 24. Что скажете?",
+        hint: "Предложите исключение через пилот.",
+        choices: [
+          { tag: "question", tagLabel: "Исключение", text: "Регламент предусматривает пилот? Начнём с 3 месяцев, потом 24.", effects: { pressure: -20, deal: +15, survival: +10 }, response: "Исключения есть. Пилот — разумно." },
+          { tag: "defense", tagLabel: "Уступка", text: "Готовы на 24 месяца.", effects: { pressure: +15, deal: +10, survival: -10 }, response: "Принято. Тогда скидка 5%." },
+          { tag: "attack", tagLabel: "Жестко", text: "24 месяца — нереально для нас.", effects: { pressure: +25, deal: -30, survival: -10 }, response: "Тогда не работаем." },
+        ]},
+      { line: "Готовы подписать. Но: ежеквартальный отчёт и аудит. Стандартное требование комплаенса.",
+        hint: "Уточните объём и стоимость аудита.",
+        choices: [
+          { tag: "question", tagLabel: "Уточнить", text: "Зафиксируем объём отчёта и кто оплачивает аудит. Если стандарт — готовы.", effects: { pressure: -10, deal: +25, survival: +10 }, response: "Аудит за наш счёт. Стандартная форма. Готовьте бумаги.", isFinal: true, outcome: "win" },
+          { tag: "defense", tagLabel: "Согласиться", text: "Да, готовы.", effects: { pressure: +10, deal: +15, survival: -5 }, response: "Отлично. Но задержки — штрафы.", isFinal: true, outcome: "win-partial" },
+          { tag: "attack", tagLabel: "Отказаться", text: "Аудит — доп. расходы. Не готовы.", effects: { pressure: +20, deal: -40, survival: -10 }, response: "Тогда не подпишем.", isFinal: true, outcome: "lose" },
+        ]},
+    ],
+  },
+  spider: {
+    name: "Анна — Паук", icon: "🕷️", color: "#a855f7",
+    intro: "Паук мягок и манипулятивен. Слабость — потеря доверия. Прямые вопросы, письменные фиксации.",
+    rounds: [
+      { line: "Здравствуйте! Как хорошо, что вы нашли время. Расскажите, что вас привело к нам?",
+        hint: "Не раскрывайте карты первым. Встречный вопрос.",
+        choices: [
+          { tag: "question", tagLabel: "Встречный", text: "Прежде чем расскажу — какие задачи вы решаете? Что приоритет?", effects: { pressure: -15, deal: +10, survival: +10 }, response: "О, у нас есть задачи... Но давайте сначала о вас." },
+          { tag: "defense", tagLabel: "Открыться", text: "У нас отличное решение для вашей отрасли. Расскажу подробно.", effects: { pressure: +15, deal: -5, survival: -10 }, response: "Интересно! А какие у вас слабые места?" },
+          { tag: "pause", tagLabel: "Пауза", text: "(Молчание) Ну, у нас несколько причин...", effects: { pressure: +10, deal: -5, survival: -10 }, response: "Вы не уверены. Может, подумать?" },
+        ]},
+      { line: "У нас есть конкурент с похожим решением, но дешевле. Что скажете?",
+        hint: "Не оправдывайтесь — уточните факты.",
+        choices: [
+          { tag: "question", tagLabel: "Уточнить", text: "Что именно предлагает конкурент? Условия, сроки, гарантии? Сравним по фактам.", effects: { pressure: -20, deal: +15, survival: +10 }, response: "Ой, не помню детали... Но цена ниже. Скидку?" },
+          { tag: "defense", tagLabel: "Оправдание", text: "Мы не самые дешёвые, но качество выше...", effects: { pressure: +20, deal: -10, survival: -15 }, response: "Да, но цена важна. Скидку 15%?" },
+          { tag: "attack", tagLabel: "Жестко", text: "Если цена — единственный критерий, мы не подходим.", effects: { pressure: +5, deal: -15, survival: -5 }, response: "Ой, не надо так резко!" },
+        ]},
+      { line: "Готова подписать. Но: пункт о расторжении в любой момент без штрафов с нашей стороны. Это же мелочь?",
+        hint: "Зафиксируйте взаимные обязательства.",
+        choices: [
+          { tag: "question", tagLabel: "Взаимность", text: "Давайте взаимно: если вы без штрафов, то и мы. Обсудим детали.", effects: { pressure: -10, deal: +25, survival: +10 }, response: "Хм... Логично. Давайте взаимно.", isFinal: true, outcome: "win" },
+          { tag: "defense", tagLabel: "Согласиться", text: "Хорошо, включим.", effects: { pressure: +15, deal: +10, survival: -10 }, response: "Отлично! Но я могу передумать.", isFinal: true, outcome: "win-partial" },
+          { tag: "attack", tagLabel: "Отказаться", text: "Это не мелочь. Не можем.", effects: { pressure: +20, deal: -40, survival: -10 }, response: "Ну как хотите.", isFinal: true, outcome: "lose" },
+        ]},
+    ],
+  },
+};
+
+// ============================================================
+// СОСТОЯНИЕ И ЛОГИКА
+// ============================================================
+const state = { role: null, opponent: null, pressure: 50, deal: 10, survival: 100, round: 0, timer: null, timeLeft: 30, gameOver: false };
+
+const screens = {
+  role: document.getElementById("role-screen"),
+  opponent: document.getElementById("opponent-screen"),
+  game: document.getElementById("game-screen"),
+  result: document.getElementById("result-screen"),
+};
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+document.querySelectorAll(".role-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.role = btn.dataset.role;
+    showScreen("opponent");
+  });
+});
+
+document.querySelectorAll(".opponent-card").forEach(card => {
+  card.addEventListener("click", () => {
+    state.opponent = card.dataset.opponent;
+    startGame();
+  });
+});
+
+function startGame() {
+  const sc = scenarios[state.opponent];
+  document.documentElement.style.setProperty("--opponent-color", sc.color);
+  document.getElementById("opponent-icon-header").textContent = sc.icon;
+  document.getElementById("opponent-name-header").textContent = sc.name;
+  if (state.role === "rop") document.getElementById("stats-panel").classList.remove("hidden");
+  showScreen("game");
+  resetState();
+  renderRound(0);
+  startTimer();
+}
+
+function resetState() {
+  state.pressure = 50; state.deal = 10; state.survival = 100; state.round = 0; state.gameOver = false;
+  document.getElementById("dialog").innerHTML = "";
+  updateStats();
+}
+
+function startTimer() {
+  clearInterval(state.timer);
+  state.timeLeft = 30;
+  updateTimerDisplay();
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    updateTimerDisplay();
+    if (state.timeLeft <= 10) document.getElementById("timer").classList.add("warning");
+    if (state.timeLeft <= 0) { clearInterval(state.timer); handleTimeout(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  document.getElementById("timer").textContent = `00:${String(state.timeLeft).padStart(2, "0")}`;
+}
+
+function handleTimeout() {
+  if (state.gameOver) return;
+  state.pressure = Math.min(100, state.pressure + 15);
+  state.survival = Math.max(0, state.survival - 10);
+  updateStats();
+  appendDialog("⏰ Время вышло! Противник воспринял паузу как слабость.", "system");
+  if (state.survival <= 0) { endGame("lose", "Вы потеряли контроль."); return; }
+  nextRound();
+}
+
+function renderRound(idx) {
+  const sc = scenarios[state.opponent];
+  const round = sc.rounds[idx];
+  if (!round) { endGame("win", "Все раунды пройдены!"); return; }
+  appendDialog(round.line, "opponent");
+  const hint = document.getElementById("hint-content");
+  hint.textContent = round.hint;
+  hint.classList.add("hidden");
+  const choicesEl = document.getElementById("choices");
+  choicesEl.innerHTML = "";
+  round.choices.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.innerHTML = `<span class="choice-tag tag-${c.tag}">${c.tagLabel}</span>${c.text}`;
+    btn.addEventListener("click", () => handleChoice(c));
+    choicesEl.appendChild(btn);
+  });
+}
+
+function appendDialog(text, type) {
+  const div = document.createElement("div");
+  if (type === "opponent") {
+    const sc = scenarios[state.opponent];
+    div.innerHTML = `<span class="speaker">${sc.icon} ${sc.name.split(" — ")[0]}:</span> ${text}`;
+  } else if (type === "player") {
+    div.innerHTML = `<span class="player-reply">💼 Вы:</span> ${text}`;
+  } else {
+    div.innerHTML = `<span class="system-msg">${text}</span>`;
+  }
+  const dialog = document.getElementById("dialog");
+  dialog.appendChild(div);
+  dialog.scrollTop = dialog.scrollHeight;
+}
+
+function handleChoice(choice) {
+  if (state.gameOver) return;
+  clearInterval(state.timer);
+  appendDialog(choice.text, "player");
+  state.pressure = clamp(state.pressure + (choice.effects.pressure || 0), 0, 100);
+  state.deal = clamp(state.deal + (choice.effects.deal || 0), 0, 100);
+  state.survival = clamp(state.survival + (choice.effects.survival || 0), 0, 100);
+  updateStats();
+  if (state.survival <= 0) { setTimeout(() => endGame("lose", "Вы не выдержали давления."), 1000); return; }
+  setTimeout(() => {
+    appendDialog(choice.response, "opponent");
+    if (choice.isFinal) {
+      setTimeout(() => endGame(choice.outcome, getFinalMessage(choice.outcome)), 1200);
+      return;
+    }
+    setTimeout(() => {
+      state.round++;
+      const sc = scenarios[state.opponent];
+      if (state.round >= sc.rounds.length) endGame("win", "Все раунды пройдены!");
+      else { renderRound(state.round); startTimer(); }
+    }, 1200);
+  }, 700);
+}
+
+function nextRound() {
+  state.round++;
+  const sc = scenarios[state.opponent];
+  if (state.round >= sc.rounds.length) endGame("win", "Все раунды пройдены!");
+  else { renderRound(state.round); startTimer(); }
+}
+
+function updateStats() {
+  document.getElementById("pressure-bar").style.width = state.pressure + "%";
+  document.getElementById("deal-bar").style.width = state.deal + "%";
+  document.getElementById("survival-bar").style.width = state.survival + "%";
+  document.getElementById("pressure-value").textContent = Math.round(state.pressure);
+  document.getElementById("deal-value").textContent = Math.round(state.deal);
+  document.getElementById("survival-value").textContent = Math.round(state.survival);
+}
+
+function endGame(outcome, message) {
+  state.gameOver = true;
+  clearInterval(state.timer);
+  document.getElementById("choices").innerHTML = "";
+  const icons = { win: "🏆", "win-partial": "🤝", lose: "💀" };
+  const titles = { win: "Победа!", "win-partial": "Частичная победа", lose: "Поражение" };
+  document.getElementById("result-icon").textContent = icons[outcome];
+  document.getElementById("result-title").textContent = titles[outcome];
+  document.getElementById("result-subtitle").textContent = message;
+  document.getElementById("result-stats").innerHTML = `
+    <div class="result-stat"><div class="result-stat-label">Давление</div><div class="result-stat-value pressure">${Math.round(state.pressure)}</div></div>
+    <div class="result-stat"><div class="result-stat-label">Сделка</div><div class="result-stat-value deal">${Math.round(state.deal)}</div></div>
+    <div class="result-stat"><div class="result-stat-label">Выживание</div><div class="result-stat-value survival">${Math.round(state.survival)}</div></div>
+  `;
+  const sc = scenarios[state.opponent];
+  document.getElementById("analysis-content").innerHTML = `
+    <div class="analysis-item neutral"><span class="label">💡 Совет:</span> ${sc.intro}</div>
+    <div class="analysis-item ${state.survival >= 70 ? "good" : "bad"}"><span class="label">Выживание:</span> ${state.survival >= 70 ? "Отличный контроль." : "Стоит поработать над стрессоустойчивостью."}</div>
+    <div class="analysis-item ${state.deal >= 70 ? "good" : "bad"}"><span class="label">Сделка:</span> ${state.deal >= 70 ? "Выгодные условия." : "Уступили больше, чем могли."}</div>
+  `;
+  showScreen("result");
+}
+
+function getFinalMessage(outcome) {
+  if (outcome === "win") return "Сделка на выгодных условиях.";
+  if (outcome === "win-partial") return "Сделка закрыта, но с потерей.";
+  return "Не смогли противостоять давлению.";
+}
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+// Подсказка
+document.getElementById("hint-btn").addEventListener("click", () => {
+  document.getElementById("hint-content").classList.toggle("hidden");
+});
+
+// Кнопки результатов
+document.getElementById("play-again-btn").addEventListener("click", startGame);
+document.getElementById("change-opponent-btn").addEventListener("click", () => showScreen("opponent"));
+</script>
+</body>
+</html>
