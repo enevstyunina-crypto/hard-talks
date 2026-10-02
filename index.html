@@ -3,92 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Тренажер жестких переговоров</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<title>Жёсткие переговоры — Тренажёр</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:radial-gradient(ellipse at top,#1a2332 0%,#0a0e1a 70%);color:#e0e6ed;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px}
-#app{width:100%;max-width:900px;background:rgba(15,25,45,.95);border-radius:24px;padding:32px;margin:20px 0;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(100,150,255,.1);position:relative;overflow:hidden}
-#app::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,var(--accent,#4a9eff) 0%,transparent 70%);opacity:.1;pointer-events:none;transition:background .5s}
-.screen{display:none}.screen.active{display:block;animation:fadeIn .4s}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-h1{font-size:1.8em;font-weight:800;text-align:center;margin-bottom:10px;background:linear-gradient(90deg,#e0e6ed 0%,var(--accent,#4a9eff) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff)}
-.subtitle{text-align:center;color:#8899aa;margin-bottom:22px;font-size:.92em}
-.theory-card{background:rgba(10,20,40,.6);border-radius:12px;padding:16px;margin-bottom:12px}
-.theory-card h3{font-size:.95em;color:#4a9eff;margin-bottom:8px;font-weight:700}
-.theory-card p{font-size:.85em;line-height:1.55;color:#c0c8d4;margin-bottom:6px}
-.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-.theory-item{background:rgba(30,45,70,.6);border-radius:8px;padding:10px}
-.theory-item .name{font-weight:700;color:#e0e6ed;font-size:.85em;margin-bottom:3px}
-.theory-item .desc{font-size:.75em;color:#8899aa;line-height:1.4}
-.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(100,150,255,.15);gap:8px;flex-wrap:wrap}
-.opp-info{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.95em}
-.timer{background:rgba(255,80,80,.15);border:1px solid rgba(255,80,80,.4);padding:8px 16px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ff3b3b;letter-spacing:1px;font-size:.9em}
-.timer.warning{animation:pulse .8s infinite}.timer.danger{animation:pulse .4s infinite;background:rgba(255,80,80,.3)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.stats-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;padding:12px;background:rgba(10,20,40,.7);border-radius:12px}
-.stat{display:flex;flex-direction:column;gap:4px}
-.stat-label{font-size:.68em;color:#8899aa;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
-.stat-bar{height:8px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden}
-.stat-fill{height:100%;transition:width .6s;border-radius:5px}
-.stat-fill.pressure{background:linear-gradient(90deg,#ff3b3b,#ff8a8a)}
-.stat-fill.deal{background:linear-gradient(90deg,#4ade80,#86efac)}
-.stat-fill.survival{background:linear-gradient(90deg,#4a9eff,#93c5fd)}
-.dialog{background:rgba(10,20,40,.8);border-left:4px solid var(--accent,#4a9eff);padding:16px;border-radius:12px;margin-bottom:14px;min-height:70px;line-height:1.6;max-height:340px;overflow-y:auto;font-size:.92em}
-.dialog .speaker{color:var(--accent,#4a9eff);font-weight:700;margin-bottom:6px;display:block}
-.dialog .player-reply{color:#4ade80;font-weight:700;margin-top:10px;display:block}
-.dialog .system-msg{color:#ffc850;font-style:italic;margin-top:10px;display:block;font-size:.88em}
-.dialog .event-msg{color:#a855f7;font-weight:600;margin-top:10px;padding:9px;background:rgba(168,85,247,.1);border-left:3px solid #a855f7;border-radius:6px;display:block;font-size:.88em}
-.dialog .nonverbal{color:#8899aa;font-style:italic;font-size:.85em}
-.choices{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.choice-btn{background:rgba(30,45,70,.8);border:2px solid rgba(100,150,255,.3);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .2s;color:#e0e6ed;text-align:left;font-size:.88em;line-height:1.55;display:flex;gap:10px;align-items:flex-start}
-.choice-btn:hover{border-color:#4a9eff;background:rgba(40,60,100,.9);transform:translateX(4px)}
-.choice-letter{background:rgba(100,150,255,.2);color:#4a9eff;font-weight:700;font-size:.78em;min-width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;flex-shrink:0}
-.choice-btn:hover .choice-letter{background:#4a9eff;color:#fff}
-.bottom-bar{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(100,150,255,.1);flex-wrap:wrap}
-.bottom-btn{flex:1;background:rgba(100,150,255,.1);border:1px solid rgba(100,150,255,.3);color:#8899aa;padding:10px;border-radius:8px;cursor:pointer;font-size:.83em;transition:all .2s;min-width:100px}
-.bottom-btn:hover{background:rgba(100,150,255,.2);color:#e0e6ed}
-.primary-btn{background:linear-gradient(135deg,#4a9eff,#2563eb);color:#fff;padding:14px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:.95em;flex:2}
-.primary-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(74,158,255,.4)}
-.result-header{text-align:center;margin-bottom:20px}
-.result-icon{font-size:3.2em;margin-bottom:10px}
-.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.result-stat{background:rgba(30,45,70,.8);border:1px solid rgba(100,150,255,.3);border-radius:12px;padding:14px;text-align:center}
-.result-stat-label{font-size:.68em;color:#8899aa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
-.result-stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5em;font-weight:700}
-.result-stat-value.pressure{color:#ff3b3b}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Manrope',system-ui,sans-serif}
+html,body{height:100%}
+body{background:#050810;color:#e8eef7;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 24px 100px;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 800px 600px at 20% 0%,rgba(74,158,255,.08),transparent 60%),radial-gradient(ellipse 600px 400px at 80% 100%,rgba(168,85,247,.06),transparent 60%);pointer-events:none;z-index:0}
+#app{width:100%;max-width:960px;background:linear-gradient(180deg,rgba(18,26,44,.98) 0%,rgba(12,18,32,.98) 100%);border-radius:28px;padding:44px;margin:20px 0;box-shadow:0 40px 120px rgba(0,0,0,.8),0 0 0 1px rgba(100,150,255,.12);position:relative;z-index:1;overflow:hidden}
+#app::before{content:'';position:absolute;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,var(--accent,#4a9eff) 0%,transparent 70%);opacity:.08;pointer-events:none;transition:background .6s}
+footer.site-footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:12px 20px;font-size:.78em;color:#5a6a85;line-height:1.6;background:linear-gradient(180deg,transparent,rgba(5,8,16,.95) 40%);z-index:100;backdrop-filter:blur(6px)}
+footer.site-footer a{color:#8ab4ff;text-decoration:none;transition:color .2s}
+footer.site-footer a:hover{color:#fff}
+.screen{display:none}
+.screen.active{display:block;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(74,158,255,.2)}50%{box-shadow:0 0 40px rgba(74,158,255,.4)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes recordPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,.7)}50%{box-shadow:0 0 0 14px rgba(255,59,59,0)}}
+h1{font-size:2.1em;font-weight:800;text-align:center;margin-bottom:12px;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 0%,var(--accent,#4a9eff) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.15}
+h2{font-size:1.4em;font-weight:700;margin-bottom:14px;color:#8ab4ff}
+.subtitle{text-align:center;color:#7a8ba6;margin-bottom:32px;font-size:1.02em;font-weight:500}
+.auth-box{max-width:440px;margin:32px auto;text-align:center}
+.auth-input{width:100%;background:rgba(8,14,26,.8);border:1.5px solid rgba(100,150,255,.25);border-radius:14px;padding:18px;color:#e8eef7;font-size:1.1em;text-align:center;letter-spacing:2px;outline:none;transition:all .25s;font-family:'JetBrains Mono',monospace;margin-bottom:14px}
+.auth-input:focus{border-color:#4a9eff;box-shadow:0 0 0 4px rgba(74,158,255,.15)}
+.auth-btn{width:100%;background:linear-gradient(135deg,#4a9eff,#2563eb);color:#fff;padding:18px;border-radius:14px;border:none;cursor:pointer;font-weight:700;font-size:1.05em;transition:all .25s;box-shadow:0 8px 24px rgba(74,158,255,.35)}
+.auth-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(74,158,255,.5)}
+.auth-error{color:#ff5c5c;font-size:.9em;margin-top:12px;min-height:22px}
+.auth-info{color:#7a8ba6;font-size:.85em;margin-top:20px;line-height:1.6}
+.theory-card{background:linear-gradient(180deg,rgba(26,36,60,.6),rgba(16,24,42,.6));border:1px solid rgba(100,150,255,.12);border-radius:18px;padding:22px;margin-bottom:14px}
+.theory-card h3{font-size:1.02em;color:#8ab4ff;margin-bottom:14px;font-weight:700}
+.theory-card p{font-size:.92em;line-height:1.65;color:#b8c4d6;margin-bottom:8px}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.theory-item{background:rgba(30,45,70,.5);border:1px solid rgba(100,150,255,.08);border-radius:12px;padding:14px;transition:all .25s}
+.theory-item:hover{border-color:rgba(100,150,255,.25);background:rgba(30,45,70,.75);transform:translateY(-1px)}
+.theory-item .name{font-weight:700;color:#e8eef7;font-size:.92em;margin-bottom:5px}
+.theory-item .desc{font-size:.82em;color:#8a9ab5;line-height:1.5}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(100,150,255,.1);gap:10px;flex-wrap:wrap}
+.opp-info{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.05em}
+.opp-icon-big{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(74,158,255,.15),rgba(168,85,247,.15));display:flex;align-items:center;justify-content:center;font-size:1.4em;border:1px solid rgba(100,150,255,.2)}
+.timer{background:linear-gradient(135deg,rgba(255,80,80,.15),rgba(255,120,120,.1));border:1px solid rgba(255,80,80,.35);padding:10px 18px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ff5c5c;letter-spacing:1px;font-size:1em;min-width:76px;text-align:center}
+.timer.warning{animation:pulse .9s infinite;border-color:rgba(255,80,80,.6)}
+.timer.danger{animation:pulse .5s infinite;background:linear-gradient(135deg,rgba(255,80,80,.3),rgba(255,120,120,.2));border-color:#ff5c5c}
+.stats-panel{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;padding:16px;background:rgba(8,14,26,.6);border:1px solid rgba(100,150,255,.06);border-radius:16px}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat-label{font-size:.68em;color:#7a8ba6;text-transform:uppercase;letter-spacing:1.8px;font-weight:700}
+.stat-bar{height:9px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden}
+.stat-fill{height:100%;transition:width .7s cubic-bezier(.4,0,.2,1);border-radius:5px}
+.stat-fill.pressure{background:linear-gradient(90deg,#ff3b3b,#ff8080);box-shadow:0 0 12px rgba(255,59,59,.35)}
+.stat-fill.deal{background:linear-gradient(90deg,#22c55e,#4ade80);box-shadow:0 0 12px rgba(34,197,94,.35)}
+.stat-fill.survival{background:linear-gradient(90deg,#3b82f6,#60a5fa);box-shadow:0 0 12px rgba(59,130,246,.35)}
+.dialog{background:linear-gradient(180deg,rgba(12,20,38,.9),rgba(8,14,26,.9));border-left:3px solid var(--accent,#4a9eff);border-radius:14px;padding:20px;margin-bottom:16px;min-height:80px;line-height:1.7;max-height:360px;overflow-y:auto;font-size:.98em}
+.dialog::-webkit-scrollbar{width:6px}
+.dialog::-webkit-scrollbar-thumb{background:rgba(100,150,255,.2);border-radius:3px}
+.dialog > div{margin-bottom:10px;animation:slideIn .3s}
+.dialog > div:last-child{margin-bottom:0}
+.dialog .speaker{color:var(--accent,#4a9eff);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:.95em}
+.dialog .player-reply{color:#4ade80;font-weight:700;margin-top:12px;padding-top:12px;border-top:1px dashed rgba(74,222,128,.15);display:block;font-size:.95em}
+.dialog .system-msg{color:#ffb84d;font-style:italic;padding:10px 14px;background:rgba(255,184,77,.06);border-radius:8px;border-left:2px solid rgba(255,184,77,.4);display:block;font-size:.9em;margin-top:8px}
+.dialog .event-msg{color:#c084fc;font-weight:600;padding:12px;background:linear-gradient(90deg,rgba(168,85,247,.12),rgba(168,85,247,.04));border-left:3px solid #a855f7;border-radius:10px;display:block;font-size:.9em;margin-top:10px}
+.dialog .ai-reply{color:#c084fc;font-weight:600;padding:12px;background:linear-gradient(90deg,rgba(168,85,247,.12),rgba(168,85,247,.04));border-left:3px solid #a855f7;border-radius:10px;display:block;font-size:.92em;margin-top:10px;font-style:italic}
+.choices{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.choice-btn{background:linear-gradient(180deg,rgba(26,36,60,.85),rgba(20,28,48,.85));border:1.5px solid rgba(100,150,255,.18);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all .22s;color:#e8eef7;text-align:left;font-size:.93em;line-height:1.55;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
+.choice-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,#4a9eff);transform:scaleY(0);transition:transform .25s}
+.choice-btn:hover{border-color:rgba(100,150,255,.45);background:linear-gradient(180deg,rgba(36,50,80,.95),rgba(28,40,68,.95));transform:translateX(6px);box-shadow:0 8px 24px rgba(74,158,255,.15)}
+.choice-btn:hover::before{transform:scaleY(1)}
+.choice-letter{background:linear-gradient(135deg,rgba(74,158,255,.2),rgba(74,158,255,.08));color:#8ab4ff;font-weight:700;font-size:.82em;min-width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;flex-shrink:0;border:1px solid rgba(74,158,255,.2)}
+.choice-btn:hover .choice-letter{background:#4a9eff;color:#fff;border-color:#4a9eff}
+.ai-input-block{background:linear-gradient(180deg,rgba(168,85,247,.08),rgba(168,85,247,.02));border:1.5px solid rgba(168,85,247,.3);border-radius:14px;padding:16px;margin-bottom:14px;animation:slideIn .3s}
+.ai-input-block label{display:block;font-size:.82em;color:#c084fc;font-weight:700;margin-bottom:8px}
+.ai-textarea{width:100%;background:rgba(8,14,26,.8);border:1px solid rgba(168,85,247,.25);border-radius:10px;padding:14px;color:#e8eef7;font-size:.95em;font-family:inherit;line-height:1.55;resize:vertical;min-height:80px;outline:none;transition:all .2s}
+.ai-textarea:focus{border-color:#a855f7;box-shadow:0 0 0 3px rgba(168,85,247,.15)}
+.ai-textarea:disabled{opacity:.5}
+.ai-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mic-btn{background:linear-gradient(135deg,rgba(255,80,80,.15),rgba(255,80,80,.05));border:1.5px solid rgba(255,80,80,.4);color:#ff5c5c;width:52px;height:52px;border-radius:50%;cursor:pointer;font-size:1.4em;display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0}
+.mic-btn:hover{background:linear-gradient(135deg,rgba(255,80,80,.25),rgba(255,80,80,.1));transform:scale(1.05)}
+.mic-btn.recording{animation:recordPulse 1.4s infinite;background:linear-gradient(135deg,rgba(255,80,80,.4),rgba(255,80,80,.2));border-color:#ff3b3b;color:#fff}
+.hint-btn{background:linear-gradient(135deg,rgba(255,184,77,.12),rgba(255,184,77,.04));border:1px solid rgba(255,184,77,.3);color:#ffb84d;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:700;font-size:.85em;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.hint-btn:hover{background:linear-gradient(135deg,rgba(255,184,77,.2),rgba(255,184,77,.08));transform:translateY(-1px)}
+.hint-content{margin-top:10px;padding:14px;background:rgba(255,184,77,.08);border-left:3px solid #ffb84d;border-radius:10px;font-size:.88em;line-height:1.55;color:#ffe0a3;animation:slideIn .25s}
+.bottom-bar{display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(100,150,255,.08);flex-wrap:wrap}
+.bottom-btn{flex:1;background:rgba(30,45,70,.4);border:1px solid rgba(100,150,255,.15);color:#8a9ab5;padding:12px;border-radius:10px;cursor:pointer;font-size:.85em;font-weight:600;transition:all .2s;min-width:100px}
+.bottom-btn:hover{background:rgba(30,45,70,.7);color:#e8eef7;border-color:rgba(100,150,255,.35)}
+.primary-btn{background:linear-gradient(135deg,#4a9eff,#2563eb);color:#fff;padding:16px 24px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:1em;flex:2;transition:all .25s;box-shadow:0 8px 24px rgba(74,158,255,.35)}
+.primary-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(74,158,255,.5)}
+.primary-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.secondary-btn{background:linear-gradient(135deg,rgba(74,158,255,.15),rgba(74,158,255,.05));border:1px solid rgba(74,158,255,.35);color:#8ab4ff;padding:16px 24px;border-radius:12px;cursor:pointer;font-weight:700;font-size:1em;flex:1;transition:all .25s}
+.secondary-btn:hover{background:linear-gradient(135deg,rgba(74,158,255,.25),rgba(74,158,255,.1));transform:translateY(-2px)}
+.toggle-ai-btn{background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(168,85,247,.05));border:1px solid rgba(168,85,247,.4);color:#c084fc;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:700;font-size:.85em;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.toggle-ai-btn:hover{background:linear-gradient(135deg,rgba(168,85,247,.25),rgba(168,85,247,.1));transform:translateY(-1px)}
+.toggle-ai-btn.active{background:linear-gradient(135deg,rgba(168,85,247,.35),rgba(168,85,247,.15));color:#fff;border-color:#a855f7}
+.admin-btn{background:linear-gradient(135deg,rgba(255,184,77,.15),rgba(255,184,77,.05));border:1px solid rgba(255,184,77,.4);color:#ffb84d;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:700;font-size:.85em;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.admin-btn:hover{background:linear-gradient(135deg,rgba(255,184,77,.25),rgba(255,184,77,.1));transform:translateY(-1px)}
+.result-header{text-align:center;margin-bottom:26px}
+.result-icon{font-size:4em;margin-bottom:12px;filter:drop-shadow(0 8px 24px rgba(74,158,255,.4));animation:glow 2s infinite}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.result-stat{background:linear-gradient(180deg,rgba(30,45,70,.7),rgba(20,28,48,.7));border:1px solid rgba(100,150,255,.15);border-radius:14px;padding:18px;text-align:center}
+.result-stat-label{font-size:.72em;color:#7a8ba6;text-transform:uppercase;letter-spacing:1.6px;margin-bottom:8px;font-weight:700}
+.result-stat-value{font-family:'JetBrains Mono',monospace;font-size:1.9em;font-weight:700}
+.result-stat-value.pressure{color:#ff5c5c}
 .result-stat-value.deal{color:#4ade80}
-.result-stat-value.survival{color:#4a9eff}
-.result-analysis{background:rgba(10,20,40,.6);border-radius:12px;padding:16px;margin-bottom:16px}
-.result-analysis h3{margin-bottom:10px;color:#4a9eff;font-size:1em}
-.analysis-item{padding:8px 0;border-bottom:1px solid rgba(100,150,255,.1);line-height:1.5;font-size:.87em}
+.result-stat-value.survival{color:#60a5fa}
+.result-analysis{background:linear-gradient(180deg,rgba(12,20,38,.7),rgba(8,14,26,.7));border:1px solid rgba(100,150,255,.1);border-radius:16px;padding:22px;margin-bottom:20px}
+.result-analysis h3{margin-bottom:14px;color:#8ab4ff;font-size:1.05em;font-weight:700}
+.analysis-item{padding:10px 0;border-bottom:1px solid rgba(100,150,255,.08);line-height:1.55;font-size:.92em}
 .analysis-item:last-child{border-bottom:none}
 .analysis-item .label{font-weight:700;margin-right:6px}
 .analysis-item.good .label{color:#4ade80}
-.analysis-item.bad .label{color:#ff3b3b}
-.analysis-item.neutral .label{color:#ffc850}
-.guess-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;margin-bottom:16px}
-.guess-btn{background:rgba(30,45,70,.8);border:2px solid rgba(100,150,255,.3);border-radius:10px;padding:14px;cursor:pointer;color:#e0e6ed;font-weight:600;font-size:.9em;transition:all .2s}
-.guess-btn:hover{border-color:#4a9eff;background:rgba(40,60,100,.9)}
-.guess-btn.correct{background:rgba(74,222,128,.2);border-color:#4ade80;color:#4ade80}
-.guess-btn.wrong{background:rgba(255,59,59,.2);border-color:#ff3b3b;color:#ff3b3b}
+.analysis-item.bad .label{color:#ff5c5c}
+.analysis-item.neutral .label{color:#ffb84d}
+.guess-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px;margin-bottom:18px}
+.guess-btn{background:linear-gradient(180deg,rgba(30,45,70,.8),rgba(20,28,48,.8));border:1.5px solid rgba(100,150,255,.2);border-radius:14px;padding:18px;cursor:pointer;color:#e8eef7;font-weight:700;font-size:.98em;transition:all .25s;text-align:center}
+.guess-btn:hover{border-color:rgba(100,150,255,.55);background:linear-gradient(180deg,rgba(40,58,90,.95),rgba(28,40,68,.95));transform:translateY(-3px);box-shadow:0 12px 32px rgba(74,158,255,.2)}
+.guess-btn.correct{background:linear-gradient(180deg,rgba(74,222,128,.2),rgba(74,222,128,.05));border-color:#4ade80;color:#4ade80;box-shadow:0 0 30px rgba(74,222,128,.3)}
+.guess-btn.wrong{background:linear-gradient(180deg,rgba(255,59,59,.2),rgba(255,59,59,.05));border-color:#ff5c5c;color:#ff5c5c}
 .guess-btn:disabled{cursor:not-allowed;opacity:.7}
-.hint-btn{background:rgba(255,200,80,.1);border:1px solid rgba(255,200,80,.3);color:#ffc850;padding:9px 18px;border-radius:9px;cursor:pointer;font-weight:600;font-size:.83em}
-.hint-btn:hover{background:rgba(255,200,80,.2)}
-.hint-content{margin-top:10px;padding:12px;background:rgba(255,200,80,.08);border-left:3px solid #ffc850;border-radius:9px;font-size:.85em;line-height:1.5;color:#e0d0a0}
+.loading-indicator{color:#c084fc;font-style:italic;padding:12px;font-size:.92em;display:flex;align-items:center;gap:10px;margin-top:10px}
+.loading-indicator::before{content:'';width:16px;height:16px;border:2px solid rgba(168,85,247,.2);border-top-color:#a855f7;border-radius:50%;animation:spin .8s linear infinite}
 .hidden{display:none!important}
-@media (max-width:600px){#app{padding:18px}.stats-panel,.result-stats,.guess-grid,.theory-grid{grid-template-columns:1fr}h1{font-size:1.4em}.bottom-bar{flex-direction:column}}
+.admin-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.88em}
+.admin-table th,.admin-table td{padding:10px;text-align:left;border-bottom:1px solid rgba(100,150,255,.1)}
+.admin-table th{color:#8ab4ff;font-weight:700;font-size:.78em;text-transform:uppercase;letter-spacing:1.4px}
+.admin-table td{font-family:'JetBrains Mono',monospace}
+.admin-row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.mini-btn{background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:#8ab4ff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.75em;font-weight:600;transition:all .2s}
+.mini-btn:hover{background:rgba(74,158,255,.25);color:#fff}
+.mini-btn.danger{background:rgba(255,80,80,.12);border-color:rgba(255,80,80,.3);color:#ff5c5c}
+.mini-btn.danger:hover{background:rgba(255,80,80,.25);color:#fff}
+.admin-input{width:100%;background:rgba(8,14,26,.8);border:1px solid rgba(100,150,255,.25);border-radius:10px;padding:12px 14px;color:#e8eef7;font-size:.92em;outline:none;transition:all .2s;margin-bottom:8px;font-family:inherit}
+.admin-input:focus{border-color:#4a9eff;box-shadow:0 0 0 3px rgba(74,158,255,.15)}
+@media (max-width:640px){
+  #app{padding:24px;border-radius:20px}
+  .stats-panel,.result-stats,.guess-grid,.theory-grid,.admin-table{grid-template-columns:1fr}
+  h1{font-size:1.55em}
+  .bottom-bar{flex-direction:column}
+  .primary-btn,.secondary-btn,.bottom-btn{flex:none;width:100%}
+  .top-bar{flex-direction:column;align-items:flex-start}
+  body{padding-bottom:120px}
+  footer.site-footer{font-size:.7em}
+}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ЭКРАН 1: ТЕОРИЯ -->
-<div id="theory-screen" class="screen active">
-  <h1>Тренажер жестких переговоров</h1>
-  <p class="subtitle">Прежде чем начать — короткая теория</p>
+<!-- ЭКРАН 0: ВХОД -->
+<div id="auth-screen" class="screen active">
+  <h1>Жёсткие переговоры</h1>
+  <p class="subtitle">Введите пароль доступа</p>
+  <div class="auth-box">
+    <input type="password" id="auth-password" class="auth-input" placeholder="• • • • • • • •" autocomplete="off" />
+    <button class="auth-btn" id="auth-submit">Войти в тренажёр →</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-info">
+      Нет пароля? Напишите на <a href="mailto:e@evstyunina.ru" style="color:#8ab4ff">e@evstyunina.ru</a>
+    </div>
+  </div>
+</div>
 
+<!-- ЭКРАН 1: ТЕОРИЯ -->
+<div id="theory-screen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap">
+    <div style="font-size:.85em;color:#7a8ba6" id="access-info"></div>
+    <div style="display:flex;gap:8px">
+      <button class="admin-btn hidden" id="open-admin-btn">⚙️ Админ</button>
+      <button class="bottom-btn" id="logout-btn" style="flex:none;min-width:auto;padding:10px 16px">Выйти</button>
+    </div>
+  </div>
+  <h1>Жёсткие переговоры</h1>
+  <p class="subtitle">Прежде чем начать — короткая теория</p>
   <div class="theory-card">
     <h3>🎭 4 типажа переговорщиков</h3>
     <div class="theory-grid">
@@ -98,7 +183,6 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
       <div class="theory-item"><div class="name">🕷️ Паук</div><div class="desc">Мягкий, задаёт вопросы, ведёт в ловушку через доверие.</div></div>
     </div>
   </div>
-
   <div class="theory-card">
     <h3>💰 4 мотива клиента</h3>
     <div class="theory-grid">
@@ -108,13 +192,11 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
       <div class="theory-item"><div class="name">🛋️ Комфорт</div><div class="desc">Хочет удобства, простоты, чтобы никто не трогал.</div></div>
     </div>
   </div>
-
   <div class="theory-card">
     <h3>🎯 Ваша задача</h3>
-    <p>Вы ведёте переговоры с неизвестным соперником. В конце вы должны угадать его <b>типаж</b> и <b>мотив</b>. За правильные ответы — бонус к итоговому счёту.</p>
-    <p><b>Совет:</b> не гонитесь за «правильным» ответом — читайте реакцию собеседника. Мотив скрыт в его словах.</p>
+    <p>Вы ведёте переговоры с неизвестным соперником. В конце — угадайте его <b>типаж</b> и <b>мотив</b>. За правильные ответы — бонус.</p>
+    <p><b>🎤 AI-режим:</b> нажмите «Свободный ответ» в игре — можете написать реплику словами или наговорить голосом.</p>
   </div>
-
   <div class="bottom-bar">
     <button class="primary-btn" id="start-btn">Понял, начать →</button>
   </div>
@@ -123,10 +205,13 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
 <!-- ЭКРАН 2: ИГРА -->
 <div id="game-screen" class="screen">
   <div class="top-bar">
-    <div class="opp-info"><span id="opp-icon">❓</span><span id="opp-name">Неизвестный соперник</span></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:.78em;color:#8899aa">Раунд <span id="round-num">1</span>/10</span>
-      <div class="timer" id="timer">00:30</div>
+    <div class="opp-info">
+      <div class="opp-icon-big" id="opp-icon">❓</div>
+      <span id="opp-name">Неизвестный соперник</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span style="font-size:.78em;color:#7a8ba6;font-weight:600">Раунд <span id="round-num">1</span>/5</span>
+      <div class="timer" id="timer">00:40</div>
     </div>
   </div>
   <div class="stats-panel">
@@ -135,10 +220,22 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
     <div class="stat"><span class="stat-label">Выживание</span><div class="stat-bar"><div id="survival-bar" class="stat-fill survival" style="width:100%"></div></div></div>
   </div>
   <div id="dialog" class="dialog"></div>
+  <div id="ai-block" class="ai-input-block hidden">
+    <label>🎤 Ваш ответ — напишите или наговорите:</label>
+    <textarea id="ai-input" class="ai-textarea" placeholder="Напишите, что скажете сопернику..."></textarea>
+    <div class="ai-actions">
+      <button class="mic-btn" id="mic-btn" title="Голосовой ввод">🎤</button>
+      <button class="primary-btn" id="ai-send-btn" style="flex:2">Отправить →</button>
+      <button class="bottom-btn" id="ai-cancel-btn" style="flex:1">Отмена</button>
+    </div>
+  </div>
   <div id="choices" class="choices"></div>
-  <div>
-    <button id="hint-btn" class="hint-btn">💡 Подсказка (<span id="hints-left">3</span>)</button>
-    <span style="font-size:.72em;color:#8899aa;margin-left:8px">−5 баллов</span>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="hint-btn" class="hint-btn">💡 Подсказка (<span id="hints-left">3</span>)</button>
+      <button id="ai-toggle-btn" class="toggle-ai-btn">🎤 Свободный ответ</button>
+    </div>
+    <span style="font-size:.72em;color:#5a6a85">−5 баллов за подсказку</span>
   </div>
   <div id="hint-content" class="hint-content hidden"></div>
   <div class="bottom-bar">
@@ -147,22 +244,19 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
   </div>
 </div>
 
-<!-- ЭКРАН 3: УГАДАЙ -->
+<!-- ЭКРАН 3: УГАДАЙКА -->
 <div id="guess-screen" class="screen">
   <h1>🎭 Кто это был?</h1>
   <p class="subtitle">Сначала угадайте типаж, потом мотив</p>
-
   <div class="theory-card">
     <h3>1️⃣ Какой это был типаж?</h3>
     <div class="guess-grid" id="type-guess-grid"></div>
   </div>
-
   <div class="theory-card hidden" id="motive-block">
     <h3>2️⃣ Какой у него мотив?</h3>
     <div class="guess-grid" id="motive-guess-grid"></div>
   </div>
-
-  <div id="guess-result" class="hidden" style="margin-top:14px;padding:14px;border-radius:12px;font-size:.9em;line-height:1.55;background:rgba(10,20,40,.6)"></div>
+  <div id="guess-result" class="hidden" style="margin-top:14px;padding:16px;border-radius:14px;font-size:.92em;line-height:1.6;background:linear-gradient(180deg,rgba(30,45,70,.6),rgba(20,28,48,.6));border:1px solid rgba(100,150,255,.15)"></div>
 </div>
 
 <!-- ЭКРАН 4: РЕЗУЛЬТАТ -->
@@ -179,29 +273,190 @@ h2{font-size:1.2em;font-weight:700;margin-bottom:10px;color:var(--accent,#4a9eff
   </div>
   <div class="bottom-bar">
     <button class="primary-btn" id="play-again-btn">🔁 Играть снова</button>
-    <button class="bottom-btn" id="back-to-theory">📖 К теории</button>
+    <button class="secondary-btn" id="back-to-theory">📖 К теории</button>
+  </div>
+</div>
+
+<!-- ЭКРАН 5: АДМИН-ПАНЕЛЬ -->
+<div id="admin-screen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap">
+    <h2>⚙️ Панель администратора</h2>
+    <button class="bottom-btn" id="admin-back-btn" style="flex:none;min-width:auto;padding:10px 16px">← Назад</button>
+  </div>
+
+  <div class="theory-card">
+    <h3>🔑 Создать новый пароль</h3>
+    <input type="text" id="new-pass-input" class="admin-input" placeholder="Пароль (например, client50)" />
+    <input type="number" id="new-pass-days" class="admin-input" placeholder="Срок в днях (например, 30)" />
+    <button class="primary-btn" id="create-pass-btn" style="width:100%">➕ Создать пароль</button>
+    <div id="create-pass-msg" style="margin-top:10px;font-size:.85em;color:#4ade80;min-height:20px"></div>
+  </div>
+
+  <div class="theory-card">
+    <h3>📋 Активные пароли</h3>
+    <table class="admin-table">
+      <thead><tr><th>Пароль</th><th>Срок</th><th>Действия</th></tr></thead>
+      <tbody id="admin-pass-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="theory-card">
+    <h3>🔐 Смена пароля админа</h3>
+    <input type="text" id="new-admin-pass" class="admin-input" placeholder="Новый пароль админа" />
+    <button class="primary-btn" id="change-admin-btn" style="width:100%">Сменить пароль админа</button>
+    <div id="admin-pass-msg" style="margin-top:10px;font-size:.85em;color:#4ade80;min-height:20px"></div>
+  </div>
+
+  <div class="theory-card">
+    <h3>🗑 Сброс данных</h3>
+    <p style="font-size:.85em;color:#8a9ab5;margin-bottom:12px">Удалить все пароли и вернуть заводские настройки (admin2026 / demo7 / client30).</p>
+    <button class="mini-btn danger" id="reset-admin-btn">Сбросить всё к заводским</button>
   </div>
 </div>
 
 </div>
+
+<footer class="site-footer">
+  © 2026 <b>Тренинг в деле™</b> · Екатерина Евстюнина<br>
+  <a href="mailto:e@evstyunina.ru">e@evstyunina.ru</a> · <a href="tel:+79965642818">+7 996 564-28-18</a><br>
+  Все права защищены. Тренажёр «Жёсткие переговоры».
+</footer>
+
 <script>
-// ============================================================
-// ТИПАЖИ И МОТИВЫ
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
+// КОНФИГ
+// ═══════════════════════════════════════════════════════════════
+const HF_TOKEN = "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";
+const HF_MODEL = "meta-llama/Llama-3.1-8B-Instruct:novita";
+const HF_URL   = "https://router.huggingface.co/v1/chat/completions";
+
+// Заводские пароли (можно менять через админку)
+const DEFAULT_PASSWORDS = {
+  "admin2026": { days: 99999, isAdmin: true },
+  "demo7":     { days: 7,     isAdmin: false },
+  "client30":  { days: 30,    isAdmin: false },
+};
+const DEFAULT_ADMIN_PASS = "admin2026";
+
+// ═══════════════════════════════════════════════════════════════
+// СИСТЕМА ПАРОЛЕЙ (localStorage)
+// ═══════════════════════════════════════════════════════════════
+const Auth = {
+  STORAGE_KEY: "nt_passwords_v1",
+  ADMIN_KEY: "nt_admin_pass_v1",
+  SESSION_KEY: "nt_session_v1",
+
+  // Получить текущий список паролей (или заводской)
+  getPasswords(){
+    try{
+      const raw=localStorage.getItem(this.STORAGE_KEY);
+      if(!raw) return {...DEFAULT_PASSWORDS};
+      return JSON.parse(raw);
+    }catch(e){return {...DEFAULT_PASSWORDS};}
+  },
+
+  // Сохранить список паролей
+  savePasswords(p){
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(p));
+  },
+
+  // Пароль админа
+  getAdminPass(){
+    return localStorage.getItem(this.ADMIN_KEY) || DEFAULT_ADMIN_PASS;
+  },
+  setAdminPass(newPass){
+    localStorage.setItem(this.ADMIN_KEY, newPass);
+  },
+
+  // Проверить пароль и вернуть объект, если найден
+  checkPassword(input){
+    const passwords=this.getPasswords();
+    const adminPass=this.getAdminPass();
+    // Проверка: совпадает ли с паролем админа или с одним из пользовательских
+    if(input===adminPass){
+      return { password: input, days: 99999, isAdmin: true };
+    }
+    if(passwords[input]){
+      return { password: input, ...passwords[input] };
+    }
+    return null;
+  },
+
+  // Начать сессию
+  startSession(entry){
+    const now=Date.now();
+    const expiresAt=entry.isAdmin ? Infinity : now + (entry.days * 24 * 60 * 60 * 1000);
+    const session={
+      password: entry.password,
+      isAdmin: entry.isAdmin,
+      days: entry.days,
+      startedAt: now,
+      expiresAt: expiresAt,
+    };
+    localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+    return session;
+  },
+
+  // Получить текущую сессию (если валидна)
+  getSession(){
+    try{
+      const raw=localStorage.getItem(this.SESSION_KEY);
+      if(!raw) return null;
+      const s=JSON.parse(raw);
+      if(s.isAdmin) return s;
+      if(s.expiresAt && Date.now() > s.expiresAt) return null;
+      return s;
+    }catch(e){return null;}
+  },
+
+  // Завершить сессию
+  endSession(){
+    localStorage.removeItem(this.SESSION_KEY);
+  },
+
+  // Создать пароль
+  createPassword(pass, days){
+    const passwords=this.getPasswords();
+    passwords[pass]={ days: days, isAdmin: false };
+    this.savePasswords(passwords);
+  },
+
+  // Удалить пароль
+  deletePassword(pass){
+    const passwords=this.getPasswords();
+    delete passwords[pass];
+    this.savePasswords(passwords);
+  },
+
+  // Сброс к заводским
+  resetAll(){
+    localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.ADMIN_KEY);
+    localStorage.removeItem(this.SESSION_KEY);
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ДАННЫЕ ИГРЫ
+// ═══════════════════════════════════════════════════════════════
 const OPPONENT_TYPES = {
-  shark: { name:"Акула", icon:"🦈", hint:"Давит временем, короткие фразы, нетерпелив, уважает только факты." },
-  hawk:  { name:"Ястреб", icon:"🦅", hint:"Атакует, требует «да/нет», не выносит долгих обсуждений." },
-  bear:  { name:"Белый медведь", icon:"🐻‍❄️", hint:"Опирается на регламенты, методичный, не терпит импровизаций." },
+  shark:{ name:"Акула", icon:"🦈", hint:"Давит временем, короткие фразы, нетерпелив, уважает только факты." },
+  hawk:{ name:"Ястреб", icon:"🦅", hint:"Атакует, требует «да/нет», не выносит долгих обсуждений." },
+  bear:{ name:"Белый медведь", icon:"🐻‍❄️", hint:"Опирается на регламенты, методичный, не терпит импровизаций." },
   spider:{ name:"Паук", icon:"🕷️", hint:"Мягкий, задаёт вопросы, ведёт в ловушку через доверие." },
 };
-
 const MOTIVES = {
-  economy:  { name:"Экономия", icon:"💵", hint:"Хотел выгоды, скидок, лучшей цены." },
-  safety:   { name:"Безопасность", icon:"🔒", hint:"Хотел гарантий, стабильности, чтобы не рисковать." },
-  prestige: { name:"Престиж", icon:"👑", hint:"Хотел статуса, показать руководству, быть «лучшим»." },
-  comfort:  { name:"Комфорт", icon:"🛋️", hint:"Хотел удобства, простоты, чтобы никто не трогал." },
+  economy:{ name:"Экономия", icon:"💵", hint:"Хотел выгоды, скидок, лучшей цены." },
+  safety:{ name:"Безопасность", icon:"🔒", hint:"Хотел гарантий, стабильности, чтобы не рисковать." },
+  prestige:{ name:"Престиж", icon:"👑", hint:"Хотел статуса, показать руководству, быть «лучшим»." },
+  comfort:{ name:"Комфорт", icon:"🛋️", hint:"Хотел удобства, простоты, чтобы никто не трогал." },
 };
-
+const TYPE_PROMPTS = {
+  shark: "Ты — АКУЛА, финансовый директор Виктор. Прямолинейный, быстрый, доминирующий. Отвечай коротко (1-2 предложения), жёстко, фактами. Не терпишь воды и пауз. Уважаешь силу.",
+  hawk: "Ты — ЯСТРЕБ, директор по закупкам Игорь. Агрессивный, атакуешь. Отвечай коротко (1-2 предложения), с напором, часто требуешь да/нет. Не выносишь долгих обсуждений.",
+  bear: "Ты — МЕДВЕДЬ, начальник отдела закупок Сергей. Методичный, опираешься на регламенты. Отвечай спокойно, но твёрдо. Ссылайся на процедуры и правила.",
+  spider: "Ты — ПАУК, директор по развитию Анна. Мягкая, манипулятивная. Отвечай вежливо, с вопросами, создавай доверие, но веди к своей цели.",
+};
 const MANIPULATIONS = [
   "[усмехается] Вы понимаете, чем это грозит?",
   "[откидывается назад] Иван Петрович был бы недоволен...",
@@ -212,401 +467,340 @@ const MANIPULATIONS = [
   "[перебивает] Стоп. Давайте по фактам.",
   "Я устал. Давайте закончим этот разговор.",
   "[наклоняется вперёд] У вас ровно 5 минут.",
-  "Вы говорите так, потому что у вас свой интерес.",
 ];
-
 const EVENTS = [
   { text:"🔔 Звонит телефон. Соперник берёт трубку: «Да, я через 10 минут». Возвращается: «Извините. Продолжим.»", effect:{pressure:-5} },
   { text:"🚪 В кабинет заглядывает человек: «О, я знаю этих... Они такое фуфло продают». Соперник: «Спасибо, я разберусь».", effect:{pressure:+15} },
   { text:"📄 Соперник достаёт документ: «Тут ваши конкуренты предложили на 10% меньше. Что скажете?»", effect:{pressure:+10} },
   { text:"☕ Соперник отвлекается на кофе. Молчит 3 секунды. У вас есть шанс взять инициативу.", effect:{pressure:-10} },
-  { text:"📱 Приходит SMS. Соперник читает, хмурится: «Продолжайте, я слушаю».", effect:{pressure:+5} },
 ];
 
-// ============================================================
-// СЦЕНАРИИ — 4 типажа × 10 раундов
-// ============================================================
-// Каждый раунд: 4 варианта одинаковой длины. Правильный зависит от МОТИВА.
-// Теги: attack/question/structure/pause
-// ============================================================
 const SCRIPTS = {
-shark: [
-  { line:"[смотрит на часы] У меня 15 минут. Ваши конкуренты дали 4,5 млн. Слушаю.",
-    hint:"Он торопится. Но «слушаю» — это приглашение. Что для него важно — цена или что-то другое?",
-    choices:[
+shark:[
+  { line:"[смотрит на часы] У меня 15 минут. Ваши конкуренты дали 4,5 млн. Слушаю.", hint:"Он торопится. Что для него важно — цена или что-то другое?", choices:[
       { tag:"question", text:"Виктор, что для вас важнее в проекте — скорость внедрения или долгосрочная окупаемость? Мне важно понять ваш приоритет.", effects:{pressure:-8,deal:6,survival:6}, response:"[пауза] Окупаемость. Мне нужно понимать, когда я верну деньги." },
       { tag:"attack", text:"Виктор, наша система окупается за 4 месяца. Это на 30% быстрее рынка. Вот цифры по вашему сектору.", effects:{pressure:-5,deal:10,survival:5}, response:"Быстрее рынка? На 30%? Покажите. У вас 5 минут." },
       { tag:"structure", text:"Виктор, предлагаю сразу сравнить по трём параметрам: сроки, цена, гарантии. Могу дать таблицу по конкурентам.", effects:{pressure:0,deal:5,survival:3}, response:"Таблицу? Хорошо, давайте. Только по существу." },
       { tag:"pause", text:"Виктор, дайте мне минуту — я сориентируюсь по вашему вопросу.", effects:{pressure:15,deal:-5,survival:-10}, response:"Минуту? У меня их нет. Говорите или уходите." },
     ]},
-  { line:"Конкурент — 4,2 млн за 2 недели. Ваш срок — месяц. Почему я должен ждать?",
-    hint:"Прямое давление сроками. Он проверяет, сломаетесь ли вы.",
-    choices:[
+  { line:"Конкурент — 4,2 млн за 2 недели. Ваш срок — месяц. Почему я должен ждать?", hint:"Давление сроками. Он проверяет, сломаетесь ли вы.", choices:[
       { tag:"question", text:"Виктор, а что именно вы теряете за эти 2 недели? Если конкурент ошибётся — потери будут больше.", effects:{pressure:-10,deal:8,survival:8}, response:"Хм. Логично. Что предлагаете по срокам?" },
       { tag:"attack", text:"Виктор, за 2 недели качественное внедрение невозможно. Я не готов рисковать вашим проектом ради скорости.", effects:{pressure:-8,deal:12,survival:8}, response:"Не готовы рисковать — это мне нравится. Продолжайте." },
       { tag:"structure", text:"Виктор, давайте зафиксируем сроки в договоре с KPI. Если не уложимся — штраф. Так обе стороны защищены.", effects:{pressure:-3,deal:12,survival:6}, response:"Штраф? Хорошо. Мне нужны конкретные цифры." },
       { tag:"pause", text:"Виктор, я не готов сейчас сравнивать по срокам — давайте вернёмся к ним после.", effects:{pressure:18,deal:-12,survival:-15}, response:"Не готовы? Тогда зачем мы вообще говорим?" },
     ]},
-  { line:"[стучит пальцами по столу] Конкретно: 4,8 млн, эксклюзив 3 года. Иначе — не подпишу.",
-    hint:"Он давит. Но «эксклюзив» — это не только про вас. Что стоит за этим требованием?",
-    choices:[
+  { line:"[стучит пальцами по столу] Конкретно: 4,8 млн, эксклюзив 3 года. Иначе — не подпишу.", hint:"Он давит. Но что стоит за словом «эксклюзив»?", choices:[
       { tag:"question", text:"Виктор, а зачем вам эксклюзив? Это защита от конкурентов или обязательство для вас тоже?", effects:{pressure:-12,deal:10,survival:8}, response:"Чтобы мой отдел был единственным, кто работает с вами. Это моя ответственность." },
       { tag:"attack", text:"Виктор, эксклюзив — это обоюдные обязательства. Если вы готовы зафиксировать объём на 3 года — я готов на эксклюзив.", effects:{pressure:-5,deal:15,survival:8}, response:"Умно. Давайте так. Готовим документы." },
       { tag:"structure", text:"Виктор, предлагаю эксклюзив по отрасли, но с исключением для смежных сфер. Это защитит ваши интересы, но не заблокирует нас.", effects:{pressure:-3,deal:10,survival:5}, response:"Уточните, что за исключения. Обсудим." },
       { tag:"pause", text:"Виктор, мне нужно согласовать эксклюзив с руководством — это не моя зона.", effects:{pressure:20,deal:-15,survival:-12}, response:"Не ваша зона? Тогда зачем вы здесь?" },
     ]},
-  { line:"А если я попрошу скидку 25%? Что вы сделаете?",
-    hint:"Провокация. Проверка на прочность. Не паникуйте.",
-    choices:[
+  { line:"А если я попрошу скидку 25%? Что вы сделаете?", hint:"Провокация. Проверка на прочность.", choices:[
       { tag:"question", text:"Виктор, что стоит за этой просьбой — проверка или реальное требование? Если требование — что взамен?", effects:{pressure:-15,deal:8,survival:12}, response:"[усмехается] Проверка. Вы держите удар. Уважаю." },
       { tag:"attack", text:"Виктор, 25% — это несерьёзно. Если вы хотите торговаться — давайте о реальных цифрах.", effects:{pressure:-5,deal:8,survival:8}, response:"Согласен. Давайте о реальных." },
       { tag:"structure", text:"Виктор, 25% скидка возможна при трёхлетнем контракте с оплатой год вперёд. Вот условия.", effects:{pressure:-2,deal:12,survival:6}, response:"Хорошо. Пришлите условия. Обсудим." },
       { tag:"pause", text:"Виктор, 25% — очень много. Мне нужно подумать, что я могу предложить взамен.", effects:{pressure:15,deal:-10,survival:-12}, response:"Подумать? Пока думаете — я уйду к конкурентам." },
     ]},
-  { line:"Хочу понять: вы решаете вопросы или только передаёте информацию?",
-    hint:"Провокация на слабость. Он проверяет ваш вес.",
-    choices:[
-      { tag:"question", text:"Виктор, я решаю в рамках обсуждённых условий. За рамками — эскалация. Как и у вас, я думаю.", effects:{pressure:-12,deal:10,survival:12}, response:"Честно. Мне это нравится. Продолжаем." },
-      { tag:"attack", text:"Виктор, я решаю по этому проекту. Если нужно выйти за рамки — я найду решение. Вопрос в вашей готовности.", effects:{pressure:-6,deal:12,survival:8}, response:"Хорошо. Проверим." },
-      { tag:"structure", text:"Виктор, я — единственный контакт по вашему проекту. Любые вопросы решаются через меня в течение 24 часов.", effects:{pressure:-4,deal:10,survival:6}, response:"24 часа. Записал. Хорошо." },
-      { tag:"pause", text:"Виктор, я должен согласовать некоторые моменты с руководством.", effects:{pressure:18,deal:-8,survival:-12}, response:"Согласовывать? Это меняет дело. Я думал, вы решаете." },
-    ]},
-  { line:"У меня есть предложение от другой компании за 4 млн. То же самое. Ваш ход.",
-    hint:"Провокация. Возможно, блеф. Уточните факты — не оправдывайтесь.",
-    choices:[
-      { tag:"question", text:"Виктор, а что именно они предлагают — сроки, гарантии, команда? Давайте сравним по фактам.", effects:{pressure:-10,deal:12,survival:10}, response:"Хм. Детали я не вдавался. Давайте сравним." },
-      { tag:"attack", text:"Виктор, если 4 млн за то же самое — берите у них. Но потом не возвращайтесь. Мы не конкурируем по цене.", effects:{pressure:5,deal:-10,survival:-3}, response:"[усмехается] Смело. Ладно, слушаю дальше." },
-      { tag:"structure", text:"Виктор, давайте зафиксируем, что входит в 4 млн у них и что входит в наше предложение. Сравним по пунктам.", effects:{pressure:-5,deal:14,survival:8}, response:"Хорошо. Пришлите форму. Сравним." },
-      { tag:"pause", text:"Виктор, это серьёзное заявление. Я не готов сразу ответить.", effects:{pressure:15,deal:-10,survival:-12}, response:"Не готовы? Тогда чего вы ждали?" },
-    ]},
-  { line:"Вы всё время говорите «мы». А лично вы за что отвечаете?",
-    hint:"Провокация. Проверяет вашу личную ответственность.",
-    choices:[
-      { tag:"question", text:"Виктор, лично я отвечаю за результат по этому проекту. Если что-то не так — это моя зона.", effects:{pressure:-12,deal:12,survival:12}, response:"Понятно. Мне это важно. Продолжаем." },
-      { tag:"attack", text:"Виктор, я отвечаю за результат. Не за процесс, не за «команду» — за результат. Остальное — детали.", effects:{pressure:-6,deal:10,survival:8}, response:"Прямо. Мне нравится. Дальше." },
-      { tag:"structure", text:"Виктор, у нас в проекте 3 ответственных лица: я, техдир, и аккаунт. Вот их зоны.", effects:{pressure:0,deal:8,survival:5}, response:"Хорошо. Пришлите их контакты." },
-      { tag:"pause", text:"Виктор, ну, у нас команда — каждый за своё.", effects:{pressure:12,deal:-8,survival:-10}, response:"Команда — это не ответ. Мне нужны люди." },
-    ]},
-  { line:"Я слышал, у вас были проблемы с одним из клиентов. Это правда?",
-    hint:"Слух. Провокация. Не оправдывайтесь — уточните источник.",
-    choices:[
-      { tag:"question", text:"Виктор, откуда информация? Мне важно понять, о чём речь, чтобы ответить по существу.", effects:{pressure:-10,deal:10,survival:12}, response:"Не важно откуда. Важно — что было." },
-      { tag:"attack", text:"Виктор, если у вас есть конкретные факты — давайте обсудим. Слухи я не комментирую.", effects:{pressure:-5,deal:8,survival:10}, response:"Хорошо. Проверим. Давайте дальше." },
-      { tag:"structure", text:"Виктор, у нас было 2 кейса с разногласиями за 5 лет. Оба закрыты в пользу клиента. Могу дать контакты для проверки.", effects:{pressure:-8,deal:12,survival:10}, response:"Контакты давайте. Проверим." },
-      { tag:"pause", text:"Виктор, это было давно, мы уже всё уладили...", effects:{pressure:18,deal:-10,survival:-15}, response:"«Давно» — значит, было. Интересно." },
-    ]},
-  { line:"У меня 5 минут. Финальные условия. Что предлагаете?",
-    hint:"Финальный раунд. Зафиксируйте ключевые условия.",
-    choices:[
-      { tag:"question", text:"Виктор, ключевое: цена 4,8, срок 3 недели, KPI зафиксированы в договоре. Это то, что вам нужно?", effects:{pressure:-10,deal:15,survival:10}, response:"Да. Приемлемо. Готовим документы." },
-      { tag:"attack", text:"Виктор, условия простые: 4,8 млн, 3 недели, штраф за срыв срока. Или не подписываем.", effects:{pressure:-5,deal:12,survival:8}, response:"Жёстко. Но по делу. Согласен." },
-      { tag:"structure", text:"Виктор, зафиксируем три пункта: цена, срок, гарантии. По каждому — конкретная цифра. Идёт?", effects:{pressure:-3,deal:14,survival:8}, response:"Идёт. Готовьте финальную версию." },
-      { tag:"pause", text:"Виктор, мне нужно 5 минут, чтобы подготовить финальное предложение.", effects:{pressure:18,deal:-12,survival:-15}, response:"Мне тоже нужно. И у меня их нет." },
-    ]},
-  { line:"Последний вопрос. Почему я должен выбрать именно вас?",
-    hint:"Финальный шанс. Одно предложение. Сильно.",
-    choices:[
+  { line:"Последний вопрос. Почему я должен выбрать именно вас?", hint:"Финальный шанс. Одно предложение. Сильно.", choices:[
       { tag:"question", text:"Виктор, потому что я не обещаю больше, чем выполню. И я держу слово. Проверите — начнём с малого объёма.", effects:{pressure:-10,deal:18,survival:12}, response:"Хорошо сказано. Готовьте документы." },
       { tag:"attack", text:"Виктор, потому что результат будет. Остальное — детали, которые мы решим по ходу.", effects:{pressure:-5,deal:15,survival:8}, response:"Лаконично. Мне нравится." },
       { tag:"structure", text:"Виктор, три причины: технология, поддержка в РФ, лично я веду проект. Если нужно — проверим на пилоте.", effects:{pressure:-6,deal:16,survival:8}, response:"Пилот? Это разумно. Обсудим." },
       { tag:"pause", text:"Виктор, у нас большой опыт и хорошая репутация.", effects:{pressure:15,deal:-10,survival:-12}, response:"Общие слова. Так не работает." },
     ]},
 ],
-
-hawk: [
-  { line:"[стучит кулаком по столу] У меня мало времени. Лучшая цена сейчас, или я иду к другим.",
-    hint:"Атака. Он проверяет, сломаетесь ли вы. Не паникуйте.",
-    choices:[
+hawk:[
+  { line:"[стучит кулаком по столу] У меня мало времени. Лучшая цена сейчас, или я иду к другим.", hint:"Атака. Не паникуйте.", choices:[
       { tag:"question", text:"Игорь, а что для вас важнее — цена или результат? Если результат — я покажу, как его обеспечим.", effects:{pressure:-12,deal:10,survival:10}, response:"Результат? Ну давай. Только быстро — что конкретно?" },
       { tag:"attack", text:"Игорь, наша цена — лучшая. Другие просто не скажут вам правду. Хотите — сравним по фактам.", effects:{pressure:-5,deal:8,survival:8}, response:"Сравним. Только быстро. Минута." },
       { tag:"structure", text:"Игорь, давайте по пунктам: цена, срок, гарантии. Я даю цифры — вы сравниваете.", effects:{pressure:-3,deal:10,survival:5}, response:"По пунктам. Хорошо. Начинай." },
       { tag:"pause", text:"Игорь, дайте минуту подумать...", effects:{pressure:15,deal:-10,survival:-12}, response:"Думать? Времени нет. Говори или ухожу." },
     ]},
-  { line:"Ты можешь дать 4,5 млн? Да или нет?",
-    hint:"Требует однозначного ответа. Не давайте «да/нет». Расширьте рамку.",
-    choices:[
+  { line:"Ты можешь дать 4,5 млн? Да или нет?", hint:"Не давайте «да/нет». Расширьте рамку.", choices:[
       { tag:"question", text:"Игорь, «да/нет» — не переговоры. Давайте я покажу, что входит в 4,5, и вы решите.", effects:{pressure:-12,deal:12,survival:10}, response:"Ладно, показывай. Не понравится — уйду." },
       { tag:"attack", text:"Игорь, нет. 4,5 — ниже себестоимости. Но я готов показать, что можно за 4,8.", effects:{pressure:5,deal:-8,survival:-3}, response:"Угрожаешь? Ладно, показывай 4,8." },
       { tag:"structure", text:"Игорь, давайте так: 4,5 — базовая комплектация, 4,8 — расширенная. Покажу разницу за 2 минуты.", effects:{pressure:-4,deal:10,survival:6}, response:"Хорошо. Показывай." },
       { tag:"pause", text:"Игорь, я не готов ответить сразу — нужно уточнить у руководства.", effects:{pressure:18,deal:-12,survival:-12}, response:"Не готов? Тогда я не готов работать." },
     ]},
-  { line:"[повышает голос] Слушай, ты понимаешь, с кем разговариваешь? Я тут решаю всё.",
-    hint:"Угроза. Не поддавайтесь эмоциям. Верните в деловое русло.",
-    choices:[
+  { line:"[повышает голос] Слушай, ты понимаешь, с кем разговариваешь? Я тут решаю всё.", hint:"Угроза. Верните в деловое русло.", choices:[
       { tag:"question", text:"Игорь, понимаю. Давайте вернёмся к сделке. Что конкретно не устраивает в нашем предложении?", effects:{pressure:-15,deal:10,survival:15}, response:"Спокоен. Мне нравится. По делу." },
       { tag:"attack", text:"Игорь, я знаю, с кем говорю. Именно поэтому предлагаю не тратить время на эмоции, а обсудить цифры.", effects:{pressure:-5,deal:8,survival:8}, response:"Жёстко. Хорошо. Давай цифры." },
       { tag:"structure", text:"Игорь, давайте зафиксируем: цена, срок, гарантии. По каждому пункту — конкретное предложение.", effects:{pressure:-3,deal:10,survival:6}, response:"Идёт. Начинай." },
       { tag:"pause", text:"Игорь, извините, я не хотел вас задеть...", effects:{pressure:20,deal:-12,survival:-18}, response:"Извинения? Ты слабак. Я не работаю со слабаками." },
     ]},
-  { line:"Мне нужен персональный менеджер и поддержка 24/7. Иначе — сделки не будет.",
-    hint:"Требование. Уточните, что он понимает под «24/7».",
-    choices:[
+  { line:"Мне нужен персональный менеджер и поддержка 24/7. Иначе — сделки не будет.", hint:"Уточните, что он понимает под «24/7».", choices:[
       { tag:"question", text:"Игорь, давайте определим, что для вас «24/7». Критичные инциденты — да. Звонки в 3 ночи — фиксируем SLA.", effects:{pressure:-8,deal:14,survival:10}, response:"Логично. Фиксируем SLA. Готовь документы." },
       { tag:"attack", text:"Игорь, 24/7 — нереально. Но я готов дать выделенного менеджера и поддержку в течение 1 часа.", effects:{pressure:5,deal:8,survival:5}, response:"Час? Приемлемо. Обсудим." },
       { tag:"structure", text:"Игорь, три уровня поддержки: стандартная, расширенная, критичная. В расширенной — SLA 1 час днём, 4 часа ночью.", effects:{pressure:-4,deal:12,survival:8}, response:"Хорошо. Расширенная. Согласен." },
       { tag:"pause", text:"Игорь, 24/7 нереально. Мы не можем этого гарантировать.", effects:{pressure:15,deal:-20,survival:-10}, response:"Не можете? Тогда не договоримся." },
     ]},
-  { line:"А что если я возьму и уйду? Что ты будешь делать?",
-    hint:"Провокация. Не поддавайтесь.",
-    choices:[
-      { tag:"question", text:"Игорь, это ваше право. Но перед уходом — что именно вас останавливает от сделки?", effects:{pressure:-12,deal:12,survival:15}, response:"Хм. Хороший вопрос. Мне нравится. Остаюсь." },
-      { tag:"attack", text:"Игорь, уходите, если хотите. Я найду других клиентов. Но вы потеряете лучшую цену.", effects:{pressure:5,deal:-8,survival:8}, response:"Смело. Ладно, остаюсь. Но ненадолго." },
-      { tag:"structure", text:"Игорь, давайте зафиксируем: если уйдёте — вернётесь через 2 недели. Потеряете время. Давайте сразу к делу.", effects:{pressure:-3,deal:10,survival:6}, response:"Логично. К делу." },
-      { tag:"pause", text:"Игорь, это ваше решение. Я не могу вас удержать.", effects:{pressure:15,deal:-12,survival:-10}, response:"Равнодушие? Плохо. Ухожу." },
-    ]},
-  { line:"Ты сказал, у вас лучший продукт. Докажи. Три факта. Быстро.",
-    hint:"Требование. Держите структуру — три факта конкретно.",
-    choices:[
-      { tag:"question", text:"Игорь, могу, но сначала — что для вас важнее: скорость, качество или цена? Тогда дам 3 факта по вашей теме.", effects:{pressure:-8,deal:10,survival:10}, response:"Скорость. Давай 3 факта про скорость." },
-      { tag:"attack", text:"Игорь, факт первый: окупаемость 4 месяца. Второй: интеграция с 1С. Третий: поддержка в РФ. Достаточно?", effects:{pressure:-5,deal:15,survival:8}, response:"Хорошо. По делу. Продолжаем." },
-      { tag:"structure", text:"Игорь, три факта: 1) технология — 5 патентов, 2) клиенты — 12 в вашей отрасли, 3) поддержка — SLA 1 час.", effects:{pressure:-4,deal:14,survival:8}, response:"Хорошо. Принято." },
-      { tag:"pause", text:"Игорь, ну, у нас много преимуществ...", effects:{pressure:15,deal:-10,survival:-12}, response:"Много — это не факты. Время." },
-    ]},
-  { line:"Слушай, а ты вообще уверен в своей компании? Может, ты новичок?",
-    hint:"Провокация на слабость. Отвечайте с достоинством.",
-    choices:[
-      { tag:"question", text:"Игорь, уверен. Иначе не тратил бы ваше и своё время. Давайте по делу — что нужно?", effects:{pressure:-12,deal:12,survival:15}, response:"Хорошо. Верю. Продолжаем." },
-      { tag:"attack", text:"Игорь, мой опыт — не предмет обсуждения. Сделка — да. Давайте к ней.", effects:{pressure:-3,deal:10,survival:8}, response:"Жёстко. Нравится." },
-      { tag:"structure", text:"Игорь, я работаю с проектами 5 лет. Вот 3 кейса в вашей отрасли. Хотите — дам контакты клиентов.", effects:{pressure:-5,deal:12,survival:10}, response:"Кейсы давай. Хорошо." },
-      { tag:"pause", text:"Игорь, нет-нет, я опытный...", effects:{pressure:18,deal:-10,survival:-15}, response:"Оправдываешься. Плохой знак." },
-    ]},
-  { line:"У меня знакомый работает с вашим конкурентом. Говорит, они лучше.",
-    hint:"Слух. Не оправдывайтесь — уточните факты.",
-    choices:[
-      { tag:"question", text:"Игорь, а что именно он говорит? Конкретно? Сравним по фактам — по каждому пункту.", effects:{pressure:-10,deal:12,survival:12}, response:"Хм. Я не вдавался. Давай сравним." },
-      { tag:"attack", text:"Игорь, слухи — не аргумент. Если у вас есть факты — давайте обсудим.", effects:{pressure:-4,deal:10,survival:8}, response:"Согласен. По делу." },
-      { tag:"structure", text:"Игорь, давайте сравним по 5 параметрам: цена, срок, гарантии, поддержка, команда. Я дам цифры.", effects:{pressure:-5,deal:12,survival:8}, response:"Хорошо. Давай таблицу." },
-      { tag:"pause", text:"Игорь, ну, не знаю, что сказать...", effects:{pressure:15,deal:-12,survival:-15}, response:"Не знаешь — плохо. Пока." },
-    ]},
-  { line:"Хорошо. Скидка 15% и обучение бесплатно. Иначе — ухожу.",
-    hint:"Финальное требование. Уточните, что взамен.",
-    choices:[
-      { tag:"question", text:"Игорь, 15% — много. Что взамен? Если объём — обсудим. Если просто так — не сделка.", effects:{pressure:-10,deal:18,survival:12}, response:"Логично. 10% и объём 2 года. Готовь документы." },
-      { tag:"attack", text:"Игорь, 15% невозможно. Максимум 8% при подписании сегодня. Решайте.", effects:{pressure:5,deal:10,survival:5}, response:"Жёстко. Хорошо, 8%. Принимаю." },
-      { tag:"structure", text:"Игорь, у меня 3 варианта: 5% без условий, 10% с объёмом 2 года, 15% с полной предоплатой. Выбирайте.", effects:{pressure:-3,deal:15,survival:8}, response:"Второй. Готовь документы." },
-      { tag:"pause", text:"Игорь, 15% — нереально. Это ниже себестоимости.", effects:{pressure:18,deal:-30,survival:-12}, response:"Тогда не договоримся. Всё." },
-    ]},
-  { line:"Последний вопрос: почему я должен подписать именно с тобой?",
-    hint:"Финальный шанс. Одна сильная фраза.",
-    choices:[
+  { line:"Последний вопрос: почему я должен подписать именно с тобой?", hint:"Одна сильная фраза.", choices:[
       { tag:"question", text:"Игорь, потому что я буду держать ваш проект как свой. И вы это увидите через 3 недели.", effects:{pressure:-10,deal:20,survival:12}, response:"Хорошо. Готовь документы. Подписываю." },
       { tag:"attack", text:"Игорь, потому что результат. Остальное — детали.", effects:{pressure:-5,deal:15,survival:8}, response:"Принято. Согласен." },
       { tag:"structure", text:"Игорь, три причины: технология, поддержка, лично я веду проект. Проверим на пилоте.", effects:{pressure:-4,deal:16,survival:10}, response:"Пилот — разумно. Обсудим." },
       { tag:"pause", text:"Игорь, ну, у нас хорошая репутация.", effects:{pressure:15,deal:-20,survival:-15}, response:"Репутация? Мне нужен результат." },
     ]},
 ],
-
-bear: [
-  { line:"[открывает папку, не смотрит на вас] Добрый день. Я изучил ваше предложение. Что в нём уникального?",
-    hint:"Он говорит про «уникальность». Медведь обычно не так формулирует. Возможно, ему нужно нечто особенное.",
-    choices:[
+bear:[
+  { line:"[открывает папку, не смотрит на вас] Добрый день. Я изучил ваше предложение. Что в нём уникального?", hint:"«Уникальность» — не типичное слово для Медведя.", choices:[
       { tag:"question", text:"Сергей, что для вас «уникальное» в контексте проекта? Технология, команда, подход? Уточните критерий.", effects:{pressure:-10,deal:10,survival:10}, response:"Технология. И чтобы её видел совет директоров. Мне важно, как это выглядит." },
       { tag:"attack", text:"Сергей, наше решение используют 3 компании из топ-100. Вот их отзывы. Можем организовать звонок с IT-директором.", effects:{pressure:-8,deal:12,survival:10}, response:"Звонок? Хорошо, организуйте. Это будет полезно." },
       { tag:"structure", text:"Сергей, у нас 3 отличия: патентованная технология, сертификат ISO 27001, поддержка в РФ. По каждому — документация.", effects:{pressure:-5,deal:10,survival:6}, response:"Документацию пришлите. Изучу." },
       { tag:"pause", text:"Сергей, мы не самые дешёвые, но качество выше. У нас есть скидки.", effects:{pressure:15,deal:-10,survival:-12}, response:"Скидки? Мне не нужны скидки. Мне нужна уникальность." },
     ]},
-  { line:"Пункт 4.2 — сроки. У вас 30 дней, по регламенту — 21. Поясните.",
-    hint:"Регламент — предлог. Что он на самом деле хочет увидеть?",
-    choices:[
+  { line:"Пункт 4.2 — сроки. У вас 30 дней, по регламенту — 21. Поясните.", hint:"Регламент — предлог. Что он на самом деле хочет?", choices:[
       { tag:"question", text:"Сергей, какой именно срок критичен — для вас лично или для тендерного комитета? Это разные вещи.", effects:{pressure:-12,deal:10,survival:12}, response:"Для меня. Мне нужно показать совету, что мы работаем быстро." },
       { tag:"attack", text:"Сергей, мы готовы на 21 день, если увеличим команду до 5 инженеров. Стоимость +8%, но срок соблюдён.", effects:{pressure:-5,deal:14,survival:8}, response:"Команда больше — это заметно. Хорошо, обсудим." },
       { tag:"structure", text:"Сергей, предлагаю зафиксировать срок 21 день с KPI и штрафом. Если не уложимся — компенсация.", effects:{pressure:-5,deal:12,survival:8}, response:"Штраф? Приемлемо. Обсудим цифры." },
       { tag:"pause", text:"Сергей, у нас сложный продукт. 30 дней — обоснованный срок.", effects:{pressure:15,deal:-10,survival:-12}, response:"Обоснованный? Регламент не обсуждается." },
     ]},
-  { line:"У нас внутренний конкурс. Конкурент дал цену на 10% ниже. Что скажете?",
-    hint:"Провокация. Не оправдывайтесь — уточните факты.",
-    choices:[
+  { line:"У нас внутренний конкурс. Конкурент дал цену на 10% ниже. Что скажете?", hint:"Не оправдывайтесь. Уточните факты.", choices:[
       { tag:"question", text:"Сергей, а что именно предлагает конкурент? Сроки, гарантии, команда? Сравним по фактам.", effects:{pressure:-10,deal:12,survival:10}, response:"Детали не помню. Но цена ниже. Может, скидку?" },
       { tag:"attack", text:"Сергей, если критерий один — цена, мы не подходим. Мы конкурируем по результату, не по цене.", effects:{pressure:3,deal:-8,survival:5}, response:"Резко. Ладно, слушаю дальше." },
       { tag:"structure", text:"Сергей, давайте сравним по 5 параметрам: цена, срок, гарантии, поддержка, кейсы. Я дам цифры.", effects:{pressure:-5,deal:14,survival:8}, response:"Хорошо. Давайте таблицу." },
       { tag:"pause", text:"Сергей, мы не самые дешёвые, но качество выше...", effects:{pressure:15,deal:-10,survival:-12}, response:"«Качество выше» — не аргумент. Нужны цифры." },
     ]},
-  { line:"По регламенту нам нужен ежеквартальный отчёт и аудит. Вы готовы?",
-    hint:"Регламент — но что за ним? Возможно, он хочет впечатлить кого-то отчётом.",
-    choices:[
+  { line:"По регламенту нам нужен ежеквартальный отчёт и аудит. Вы готовы?", hint:"Что за этим? Кто будет читать отчёт?", choices:[
       { tag:"question", text:"Сергей, а кто именно будет читать отчёт — вы, тендерный комитет или совет директоров? Формат от этого зависит.", effects:{pressure:-12,deal:14,survival:12}, response:"Совет директоров. Мне нужно, чтобы отчёт был презентабельным." },
       { tag:"attack", text:"Сергей, готовы. Отчёт — стандартная форма, аудит за наш счёт. Можем даже расширить формат до ежемесячного.", effects:{pressure:-5,deal:12,survival:8}, response:"Ежемесячный? Хорошо. Это будет заметно." },
       { tag:"structure", text:"Сергей, три формата отчёта: краткий, стандартный, расширенный. Расширенный включает графики и прогнозы.", effects:{pressure:-5,deal:14,survival:8}, response:"Расширенный. Пришлите образец." },
       { tag:"pause", text:"Сергей, аудит — это доп. расходы. Мы не готовы на это.", effects:{pressure:18,deal:-25,survival:-10}, response:"Не готовы? Тогда не сможем работать." },
     ]},
-  { line:"Уточните: кто у вас будет ответственным за проект? Мне нужны ФИО и зона ответственности.",
-    hint:"Он хочет видеть конкретных людей. Возможно, чтобы показать руководству.",
-    choices:[
-      { tag:"question", text:"Сергей, ответственный — я. Но уточните: вы хотите одного ответственного или команду с ролями?", effects:{pressure:-10,deal:12,survival:10}, response:"Команду. И чтобы у каждого был уровень Senior. Это для совета." },
-      { tag:"attack", text:"Сергей, ответственный — я, Иванов Иван. Зона: сроки, качество, коммуникация. Пришлю CV и сертификаты.", effects:{pressure:-5,deal:12,survival:8}, response:"CV пришлите. Хорошо." },
-      { tag:"structure", text:"Сергей, команда проекта: 5 человек. Архитектор Senior, 2 разработчика, тестировщик, менеджер. Все с сертификатами.", effects:{pressure:-5,deal:15,survival:10}, response:"Отлично. Пришлите их профили." },
-      { tag:"pause", text:"Сергей, это внутреннее дело компании, я не могу раскрывать состав.", effects:{pressure:15,deal:-15,survival:-8}, response:"Внутреннее? Тогда мы не сможем работать." },
-    ]},
-  { line:"Мы работаем только с поставщиками с сертификацией ISO 27001. Она у вас есть?",
-    hint:"Регламент. Но, возможно, ему важно, чтобы вы выглядели солидно.",
-    choices:[
-      { tag:"question", text:"Сергей, а для совета директоров или для внутреннего аудита? У нас есть 9001, 27001 в процессе — готовы ускорить.", effects:{pressure:-10,deal:14,survival:12}, response:"Для совета. Ускорьте 27001 — это будет заметно." },
-      { tag:"attack", text:"Сергей, 27001 у нас есть. Дополнительно готовы пройти SOC 2 — это выше стандарта.", effects:{pressure:-5,deal:14,survival:10}, response:"SOC 2? Впечатляет. Пришлите документы." },
-      { tag:"structure", text:"Сергей, у нас 3 сертификата: 9001, 27001, 27701. Плюс готовы пройти любую дополнительную проверку.", effects:{pressure:-5,deal:14,survival:8}, response:"Хорошо. Пришлите пакет документов." },
-      { tag:"pause", text:"Сергей, у нас несколько сертификатов, но 27001 не помню точно.", effects:{pressure:15,deal:-15,survival:-12}, response:"Не помните? Это плохо. Проверьте и вернитесь." },
-    ]},
-  { line:"В договоре будет пункт о расторжении в любой момент с нашей стороны. Без штрафов.",
-    hint:"Регламент. Но, возможно, он проверяет, насколько вы уверены в себе.",
-    choices:[
-      { tag:"question", text:"Сергей, а этот пункт — для вас лично или для юристов? Если для вас — предложу зеркальный вариант: обе стороны без штрафов.", effects:{pressure:-12,deal:16,survival:12}, response:"Зеркальный? Логично. Давайте так." },
-      { tag:"attack", text:"Сергей, давайте взаимно: вы без штрафов расторгаете, мы тоже. Это честно и заметно для совета.", effects:{pressure:-8,deal:15,survival:10}, response:"Честно. Мне это нравится. Обсудим." },
-      { tag:"structure", text:"Сергей, три варианта: без штрафов, со штрафом 10%, со штрафом 5% при уведомлении за 30 дней. Выбирайте.", effects:{pressure:-5,deal:14,survival:8}, response:"Третий. Компромисс." },
-      { tag:"pause", text:"Сергей, это нестандартное условие. Мы не можем включить такой пункт.", effects:{pressure:18,deal:-30,survival:-10}, response:"Не можете? Тогда не подпишем." },
-    ]},
-  { line:"Можете дать рекомендации от клиентов? Мне нужно понять, с кем я работаю.",
-    hint:"Он хочет кейсы. Возможно, чтобы показать руководству, что выбрал «серьёзного» поставщика.",
-    choices:[
-      { tag:"question", text:"Сергей, а какие именно рекомендации нужны — от топ-менеджеров, от IT-директоров, от финансовых служб?", effects:{pressure:-10,deal:14,survival:12}, response:"От IT-директоров. И чтобы компания была не меньше нашей. Это важно." },
-      { tag:"attack", text:"Сергей, готовы дать 5 контактов IT-директоров из топ-500. Включая 2 ваших прямых конкурента.", effects:{pressure:-8,deal:15,survival:10}, response:"Конкурентов? Интересно. Пришлите контакты." },
-      { tag:"structure", text:"Сергей, у нас 3 категории рекомендаций: краткие, расширенные, с цифрами. Расширенные — с контактами и метриками.", effects:{pressure:-5,deal:14,survival:8}, response:"Расширенные. Хорошо." },
-      { tag:"pause", text:"Сергей, у нас много довольных клиентов, но контакты давать не всегда удобно.", effects:{pressure:15,deal:-12,survival:-10}, response:"Неудобно? Тогда я не могу проверить." },
-    ]},
-  { line:"Мы готовы подписать. Но цена — 4,5 млн, не выше. Иначе не пройдёт по бюджету.",
-    hint:"Финальное. Проверьте — это бюджетное ограничение или что-то ещё?",
-    choices:[
-      { tag:"question", text:"Сергей, что именно входит в бюджет — только софт или внедрение тоже? Могу предложить разные схемы.", effects:{pressure:-10,deal:16,survival:12}, response:"Только софт. Внедрение отдельной строкой. Тогда давайте обсудим." },
-      { tag:"attack", text:"Сергей, 4,5 — нереально. Но я готов предложить 4,5 за базовую версию, а расширение — отдельно.", effects:{pressure:-5,deal:14,survival:8}, response:"Разделение? Хорошо. Давайте детали." },
-      { tag:"structure", text:"Сергей, три варианта: 4,5 — базовый пакет, 4,8 — расширенный, 5,2 — премиум. Все с гарантиями.", effects:{pressure:-5,deal:14,survival:8}, response:"Расширенный. Обсудим с руководством." },
-      { tag:"pause", text:"Сергей, 4,5 — ниже себестоимости. Мы не можем.", effects:{pressure:15,deal:-25,survival:-10}, response:"Тогда не подпишем. Извините." },
-    ]},
-  { line:"Последний вопрос: почему я должен выбрать вас, а не вашего конкурента?",
-    hint:"Финальный шанс. Что важно ему лично?",
-    choices:[
+  { line:"Последний вопрос: почему я должен выбрать вас, а не вашего конкурента?", hint:"Что важно ему лично?", choices:[
       { tag:"question", text:"Сергей, а что для вас лично — важнее всего в этом выборе? Технология, команда, отчёт для совета?", effects:{pressure:-12,deal:18,survival:14}, response:"Отчёт. Мне нужно, чтобы совет сказал: «Сергей выбрал лучших»." },
       { tag:"attack", text:"Сергей, потому что с нами у вас будет отчёт, о котором узнает весь совет. Не просто выполнение — а победа.", effects:{pressure:-8,deal:20,survival:12}, response:"Победа? Мне это нравится. Готовьте документы." },
       { tag:"structure", text:"Сергей, три причины: технология с патентами, отчёт для совета, лично я веду проект. Всё — с гарантиями.", effects:{pressure:-5,deal:16,survival:10}, response:"Хорошо. Присылайте документы." },
       { tag:"pause", text:"Сергей, ну, у нас большой опыт и репутация.", effects:{pressure:15,deal:-15,survival:-12}, response:"Опыт? Мне нужны аргументы для совета." },
     ]},
 ],
-
-spider: [
-  { line:"[мягко улыбается] Здравствуйте! Как хорошо, что нашли время. Расскажите, что вас привело к нам?",
-    hint:"Мягкое открытие. Но что она хочет услышать? Про вас — или про себя?",
-    choices:[
-      { tag:"question", text:"Анна, спасибо. Прежде чем расскажу — какие задачи вы сейчас решаете? Что для вас приоритет?", effects:{pressure:-10,deal:10,survival:10}, response:"О, у нас несколько задач... Но давайте сначала о вас. Что вы можете предложить?",},
-      { tag:"attack", text:"Анна, мы пришли, потому что у нас есть решение, которое используют лидеры рынка. Готовы показать кейсы.", effects:{pressure:-5,deal:8,survival:5}, response:"Лидеры рынка? Как интересно. Какие именно?",},
-      { tag:"structure", text:"Анна, у нас 3 направления: автоматизация, аналитика, интеграция. Каждое решает конкретную задачу. Что ближе вам?", effects:{pressure:-3,deal:10,survival:6}, response:"Аналитика. Расскажите подробнее.",},
-      { tag:"pause", text:"Анна, у нас есть несколько причин... с чего начать, не знаю.", effects:{pressure:12,deal:-8,survival:-10}, response:"Вы не уверены? Может, вам нужно время подумать?",},
+spider:[
+  { line:"[мягко улыбается] Здравствуйте! Как хорошо, что нашли время. Расскажите, что вас привело к нам?", hint:"Что она хочет услышать — про вас или про себя?", choices:[
+      { tag:"question", text:"Анна, спасибо. Прежде чем расскажу — какие задачи вы сейчас решаете? Что для вас приоритет?", effects:{pressure:-10,deal:10,survival:10}, response:"О, у нас несколько задач... Но давайте сначала о вас." },
+      { tag:"attack", text:"Анна, мы пришли, потому что у нас есть решение, которое используют лидеры рынка. Готовы показать кейсы.", effects:{pressure:-5,deal:8,survival:5}, response:"Лидеры рынка? Как интересно. Какие именно?" },
+      { tag:"structure", text:"Анна, у нас 3 направления: автоматизация, аналитика, интеграция. Каждое решает конкретную задачу. Что ближе вам?", effects:{pressure:-3,deal:10,survival:6}, response:"Аналитика. Расскажите подробнее." },
+      { tag:"pause", text:"Анна, у нас есть несколько причин... с чего начать, не знаю.", effects:{pressure:12,deal:-8,survival:-10}, response:"Вы не уверены? Может, вам нужно время подумать?" },
     ]},
-  { line:"У нас есть конкурент с похожим решением, но дешевле. Что скажете?",
-    hint:"Провокация. Не оправдывайтесь. Что она на самом деле проверяет?",
-    choices:[
-      { tag:"question", text:"Анна, а что именно предлагает конкурент? Условия, сроки, гарантии? Давайте сравним по фактам.", effects:{pressure:-12,deal:12,survival:10}, response:"Ой, я не помню детали... Но цена ниже. Может, скидку?",},
-      { tag:"attack", text:"Анна, если цена — единственный критерий, мы не подходим. Мы работаем по другому принципу.", effects:{pressure:3,deal:-10,survival:-3}, response:"Ой, не надо резко! Я просто спросила.",},
-      { tag:"structure", text:"Анна, давайте зафиксируем: что входит в их цену, что в нашу. Сравним по 5 параметрам.", effects:{pressure:-5,deal:14,survival:8}, response:"Хорошо. Давайте сравним.",},
-      { tag:"pause", text:"Анна, мы не самые дешёвые, но качество выше...", effects:{pressure:15,deal:-10,survival:-12}, response:"Да, но цена важна. Может, скидку?",},
+  { line:"У нас есть конкурент с похожим решением, но дешевле. Что скажете?", hint:"Не оправдывайтесь. Уточните факты.", choices:[
+      { tag:"question", text:"Анна, а что именно предлагает конкурент? Условия, сроки, гарантии? Давайте сравним по фактам.", effects:{pressure:-12,deal:12,survival:10}, response:"Ой, я не помню детали... Но цена ниже. Может, скидку?" },
+      { tag:"attack", text:"Анна, если цена — единственный критерий, мы не подходим. Мы работаем по другому принципу.", effects:{pressure:3,deal:-10,survival:-3}, response:"Ой, не надо резко! Я просто спросила." },
+      { tag:"structure", text:"Анна, давайте зафиксируем: что входит в их цену, что в нашу. Сравним по 5 параметрам.", effects:{pressure:-5,deal:14,survival:8}, response:"Хорошо. Давайте сравним." },
+      { tag:"pause", text:"Анна, мы не самые дешёвые, но качество выше...", effects:{pressure:15,deal:-10,survival:-12}, response:"Да, но цена важна. Может, скидку?" },
     ]},
-  { line:"А давайте без договора, на доверии? Так быстрее. Вы же мне доверяете?",
-    hint:"Мягкое предложение с подвохом. Что за этим?",
-    choices:[
-      { tag:"question", text:"Анна, доверие важно. Но скажите честно — без договора вы чувствуете себя комфортнее?", effects:{pressure:-10,deal:12,survival:12}, response:"Ну, да. Мне так спокойнее. Я не люблю бумажную волокиту.",},
-      { tag:"attack", text:"Анна, без договора мы не работаем. Но готовы упростить процедуру — типовой договор за 1 день.", effects:{pressure:5,deal:5,survival:5}, response:"Упростить? Хорошо, давайте посмотрим.",},
-      { tag:"structure", text:"Анна, давайте так: сначала рамочный договор на 2 страницы, потом уточнения по мере необходимости.", effects:{pressure:-5,deal:12,survival:8}, response:"2 страницы? Это приемлемо. Давайте.",},
-      { tag:"pause", text:"Анна, без договора мы не можем. Это небезопасно.", effects:{pressure:12,deal:-12,survival:-8}, response:"Небезопасно? Ну как хотите.",},
+  { line:"А давайте без договора, на доверии? Так быстрее. Вы же мне доверяете?", hint:"Мягкое предложение с подвохом.", choices:[
+      { tag:"question", text:"Анна, доверие важно. Но скажите честно — без договора вы чувствуете себя комфортнее?", effects:{pressure:-10,deal:12,survival:12}, response:"Ну, да. Мне так спокойнее. Я не люблю бумажную волокиту." },
+      { tag:"attack", text:"Анна, без договора мы не работаем. Но готовы упростить процедуру — типовой договор за 1 день.", effects:{pressure:5,deal:5,survival:5}, response:"Упростить? Хорошо, давайте посмотрим." },
+      { tag:"structure", text:"Анна, давайте так: сначала рамочный договор на 2 страницы, потом уточнения по мере необходимости.", effects:{pressure:-5,deal:12,survival:8}, response:"2 страницы? Это приемлемо. Давайте." },
+      { tag:"pause", text:"Анна, без договора мы не можем. Это небезопасно.", effects:{pressure:12,deal:-12,survival:-8}, response:"Небезопасно? Ну как хотите." },
     ]},
-  { line:"У меня подруга в вашей отрасли. Она сказала, вы недавно потеряли крупного клиента. Правда?",
-    hint:"Слух. Провокация. Не оправдывайтесь.",
-    choices:[
-      { tag:"question", text:"Анна, а что именно она сказала? Мне важно понять, о чём речь, чтобы ответить честно.", effects:{pressure:-10,deal:12,survival:12}, response:"Ну, она сказала, что у вас был конфликт с клиентом. Что случилось?",},
-      { tag:"attack", text:"Анна, это было 2 года назад. Кейс закрыт. Хотите — дам контакты самого клиента.", effects:{pressure:-5,deal:10,survival:8}, response:"Контакты? Давайте. Проверю.",},
-      { tag:"structure", text:"Анна, у нас было 2 сложных кейса за 5 лет. Оба решены. Могу дать документальное подтверждение.", effects:{pressure:-5,deal:12,survival:10}, response:"Документально — хорошо. Пришлите.",},
-      { tag:"pause", text:"Анна, я не знаю о чём речь. Наверное, это ошибка.", effects:{pressure:15,deal:-10,survival:-12}, response:"Не знаете? Странно. Она была уверена.",},
+  { line:"У меня подруга в вашей отрасли. Она сказала, вы недавно потеряли крупного клиента. Правда?", hint:"Не оправдывайтесь. Уточните источник.", choices:[
+      { tag:"question", text:"Анна, а что именно она сказала? Мне важно понять, о чём речь, чтобы ответить честно.", effects:{pressure:-10,deal:12,survival:12}, response:"Ну, она сказала, что у вас был конфликт с клиентом. Что случилось?" },
+      { tag:"attack", text:"Анна, это было 2 года назад. Кейс закрыт. Хотите — дам контакты самого клиента.", effects:{pressure:-5,deal:10,survival:8}, response:"Контакты? Давайте. Проверю." },
+      { tag:"structure", text:"Анна, у нас было 2 сложных кейса за 5 лет. Оба решены. Могу дать документальное подтверждение.", effects:{pressure:-5,deal:12,survival:10}, response:"Документально — хорошо. Пришлите." },
+      { tag:"pause", text:"Анна, я не знаю о чём речь. Наверное, это ошибка.", effects:{pressure:15,deal:-10,survival:-12}, response:"Не знаете? Странно. Она была уверена." },
     ]},
-  { line:"У меня есть друг, который работает с вашим прямым конкурентом. Он говорит, что у них лучше.",
-    hint:"Слух. Провокация на сомнение.",
-    choices:[
-      { tag:"question", text:"Анна, а что именно он говорит? Конкретно? Сравним по фактам, если важно.", effects:{pressure:-12,deal:12,survival:12}, response:"Ну, он говорит, что у них дешевле и поддержка лучше.",},
-      { tag:"attack", text:"Анна, у каждого свой опыт. Давайте о вашем кейсе — что нужно лично вам?", effects:{pressure:-3,deal:10,survival:8}, response:"Хорошо. По делу.",},
-      { tag:"structure", text:"Анна, давайте сравним по 5 параметрам. Я дам цифры по каждому — включая поддержку.", effects:{pressure:-5,deal:12,survival:8}, response:"Хорошо. Давайте таблицу.",},
-      { tag:"pause", text:"Анна, ну, не знаю, что сказать...", effects:{pressure:15,deal:-12,survival:-12}, response:"Не знаете? А он знает.",},
-    ]},
-  { line:"Знаете, я вам доверяю. Но у меня есть условие: мы платим после внедрения. Полностью. Ок?",
-    hint:"Мягкое условие с подвохом. Что за ним — желание комфорта или что-то ещё?",
-    choices:[
-      { tag:"question", text:"Анна, а вам так спокойнее? Или это требование финансового отдела? От этого зависит схема.", effects:{pressure:-10,deal:14,survival:12}, response:"Мне так спокойнее. Я не хочу рисковать.",},
-      { tag:"attack", text:"Анна, оплата после внедрения невозможна. Но готова 30% аванс, 70% после — это стандарт.", effects:{pressure:5,deal:10,survival:5}, response:"30 на 70? Ну, приемлемо. Давайте.",},
-      { tag:"structure", text:"Анна, три схемы: 50/50, 30/70, 100% постфактум с банковской гарантией. Выбирайте.", effects:{pressure:-5,deal:14,survival:10}, response:"Третий. С гарантией. Хорошо.",},
-      { tag:"pause", text:"Анна, оплата после внедрения — нестандартно. Мы не можем.", effects:{pressure:12,deal:-12,survival:-10}, response:"Не можете? Тогда поищем других.",},
-    ]},
-  { line:"А может, по-дружески? Я вам скидку, вы мне — премию за сделку. Как вам?",
-    hint:"Мягкая провокация. Что она на самом деле хочет?",
-    choices:[
-      { tag:"question", text:"Анна, а зачем вам премия? Хотите, чтобы руководство заметило сделку? Могу помочь с этим законно.", effects:{pressure:-10,deal:14,survival:14}, response:"Ой, вы поняли. Да, хочу, чтобы заметили. Тогда давайте законно.",},
-      { tag:"attack", text:"Анна, это неэтично. Давайте о деле — что нужно, чтобы вы чувствовали себя уверенно?", effects:{pressure:5,deal:8,survival:8}, response:"Ой, я пошутила! Конечно, о деле.",},
-      { tag:"structure", text:"Анна, есть легальный способ: пилот с публикацией кейса. Это заметнее, чем премия.", effects:{pressure:-5,deal:14,survival:10}, response:"Публикация кейса? Это интересно! Расскажите.",},
-      { tag:"pause", text:"Анна, это неловкий вопрос... давайте забудем.", effects:{pressure:12,deal:-10,survival:-10}, response:"Ладно, забудем.",},
-    ]},
-  { line:"У меня есть проблема: наши юристы не одобрят договор с вашими условиями. Что делать?",
-    hint:"Мягкое давление. Что она на самом деле хочет — обойти или решить?",
-    choices:[
-      { tag:"question", text:"Анна, что именно не одобряют юристы? Если уточните пункты — предложу варианты.", effects:{pressure:-10,deal:14,survival:12}, response:"Пункты 5 и 7. Там про ответственность и расторжение.",},
-      { tag:"attack", text:"Анна, если юристы против — давайте их подключим к переговорам. Решим за один звонок.", effects:{pressure:-5,deal:14,survival:10}, response:"Привлечь юристов? Ну, можно. Хорошо.",},
-      { tag:"structure", text:"Анна, три варианта: адаптация пунктов, допсоглашение, или пилот без полного договора.", effects:{pressure:-5,deal:14,survival:10}, response:"Третий. Пилот. Давайте.",},
-      { tag:"pause", text:"Анна, это сложно. Если юристы против, мы не можем.", effects:{pressure:12,deal:-12,survival:-10}, response:"Сложно? Давайте искать решение.",},
-    ]},
-  { line:"Знаете, я тут подумала: а зачем нам вообще с вами работать? Что вы даёте такого, чего нет у других?",
-    hint:"Прямой вопрос. Но что она хочет услышать — про выгоду или про комфорт?",
-    choices:[
-      { tag:"question", text:"Анна, а что для вас важнее — удобство работы с нами или результат? От этого зависит ответ.", effects:{pressure:-12,deal:14,survival:12}, response:"Удобство. Я не хочу потом разгребать проблемы.",},
-      { tag:"attack", text:"Анна, три вещи: окупаемость 4 месяца, поддержка 24/7, лично я веду проект до конца.", effects:{pressure:-5,deal:15,survival:10}, response:"Лично вы? Это хорошо. Мне нравится.",},
-      { tag:"structure", text:"Анна, три параметра: технология, команда, поддержка. По каждому — конкретика и гарантии.", effects:{pressure:-5,deal:14,survival:10}, response:"Хорошо. Конкретно. Мне нравится.",},
-      { tag:"pause", text:"Анна, ну, у нас есть свои преимущества...", effects:{pressure:12,deal:-10,survival:-10}, response:"«Свои преимущества» — не ответ.",},
-    ]},
-  { line:"Хорошо, я готова подписать. Последнее: пункт о расторжении без штрафов с нашей стороны. Ок?",
-    hint:"Финальный пункт. Что за ним — защита или удобство?",
-    choices:[
-      { tag:"question", text:"Анна, а зачем вам без штрафов? Если для спокойствия — давайте взаимно. Если для возможности уйти — обсудим условия.", effects:{pressure:-10,deal:16,survival:12}, response:"Для спокойствия. Взаимно — это хорошо. Давайте так.",},
-      { tag:"attack", text:"Анна, только взаимно: вы без штрафов — мы без штрафов. Это справедливо.", effects:{pressure:-5,deal:15,survival:10}, response:"Справедливо. Согласна.",},
-      { tag:"structure", text:"Анна, три варианта: без штрафов, штраф 5%, штраф 10% с уведомлением за 30 дней. Компромисс — второй.", effects:{pressure:-5,deal:15,survival:10}, response:"Второй. Компромисс. Хорошо.",},
-      { tag:"pause", text:"Анна, это не мелочь. Мы не можем включить такой пункт.", effects:{pressure:15,deal:-30,survival:-12}, response:"Не можете? Тогда мы не договоримся.",},
-    ]},
-  { line:"Последний вопрос: почему я должна выбрать именно вас?",
-    hint:"Финальный шанс. Что важно ей лично?",
-    choices:[
-      { tag:"question", text:"Анна, а что для вас лично — важно в этом выборе? Чтобы было спокойно? Чтобы было престижно? Или чтобы выгодно?", effects:{pressure:-12,deal:18,survival:14}, response:"Чтобы спокойно. Я не хочу потом разгребать. Если вы это обеспечите — я с вами.",},
-      { tag:"attack", text:"Анна, потому что с нами вам не придётся ни о чём беспокоиться. Мы ведём всё — от начала до конца.", effects:{pressure:-8,deal:18,survival:12}, response:"Не беспокоиться? Мне это нравится. Готовьте документы.",},
-      { tag:"structure", text:"Анна, три причины: технология, поддержка, личный менеджер. Плюс — отчёт для руководства, который заметят.", effects:{pressure:-5,deal:16,survival:10}, response:"Отчёт, который заметят? Да, важно. Присылайте документы.",},
-      { tag:"pause", text:"Анна, ну, у нас хорошая репутация и опыт.", effects:{pressure:15,deal:-15,survival:-12}, response:"Репутация? Мне нужно, чтобы было удобно.",},
+  { line:"Последний вопрос: почему я должна выбрать именно вас?", hint:"Что важно ей лично?", choices:[
+      { tag:"question", text:"Анна, а что для вас лично — важно в этом выборе? Чтобы было спокойно? Престижно? Выгодно?", effects:{pressure:-12,deal:18,survival:14}, response:"Чтобы спокойно. Я не хочу потом разгребать. Если вы это обеспечите — я с вами." },
+      { tag:"attack", text:"Анна, потому что с нами вам не придётся ни о чём беспокоиться. Мы ведём всё — от начала до конца.", effects:{pressure:-8,deal:18,survival:12}, response:"Не беспокоиться? Мне это нравится. Готовьте документы." },
+      { tag:"structure", text:"Анна, три причины: технология, поддержка, личный менеджер. Плюс — отчёт для руководства, который заметят.", effects:{pressure:-5,deal:16,survival:10}, response:"Отчёт, который заметят? Да, важно. Присылайте документы." },
+      { tag:"pause", text:"Анна, ну, у нас хорошая репутация и опыт.", effects:{pressure:15,deal:-15,survival:-12}, response:"Репутация? Мне нужно, чтобы было удобно." },
     ]},
 ],
 };
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 // СОСТОЯНИЕ
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 const state = {
   opponentType:null, motive:null,
   pressure:50, deal:10, survival:100,
-  round:0, timer:null, timeLeft:30, gameOver:false,
+  round:0, timer:null, timeLeft:40, gameOver:false,
   hintsLeft:3, hintsUsed:0,
   rounds:[],
   guessedType:null, guessedMotive:null,
   typeCorrect:false, motiveCorrect:false,
+  aiMode:false, aiHistory:[],
+  session:null,
 };
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 // ЭКРАНЫ
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 const screens = {
+  auth:document.getElementById("auth-screen"),
   theory:document.getElementById("theory-screen"),
   game:document.getElementById("game-screen"),
   guess:document.getElementById("guess-screen"),
   result:document.getElementById("result-screen"),
+  admin:document.getElementById("admin-screen"),
 };
-function showScreen(n){Object.values(screens).forEach(s=>s.classList.remove("active"));screens[n].classList.add("active")}
+function showScreen(n){
+  Object.values(screens).forEach(s=>s.classList.remove("active"));
+  if(screens[n]) screens[n].classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-// ============================================================
-// СТАРТ
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
+// АВТОРИЗАЦИЯ
+// ═══════════════════════════════════════════════════════════════
+function checkAuth(){
+  const session=Auth.getSession();
+  if(session){
+    state.session=session;
+    applySession();
+    showScreen("theory");
+  } else {
+    showScreen("auth");
+  }
+}
+
+function applySession(){
+  // Обновить данные в шапке
+  const infoEl=document.getElementById("access-info");
+  if(!infoEl) return;
+  if(state.session.isAdmin){
+    infoEl.textContent="🛡 Доступ администратора · бессрочно";
+    document.getElementById("open-admin-btn").classList.remove("hidden");
+  } else {
+    const daysLeft=Math.max(0,Math.ceil((state.session.expiresAt - Date.now())/(1000*60*60*24)));
+    infoEl.textContent=`🔓 Доступ активен · осталось ${daysLeft} дн.`;
+    document.getElementById("open-admin-btn").classList.add("hidden");
+  }
+}
+
+document.getElementById("auth-submit").addEventListener("click",()=>{
+  const input=document.getElementById("auth-password").value.trim();
+  const errorEl=document.getElementById("auth-error");
+  if(!input){errorEl.textContent="Введите пароль";return;}
+  const entry=Auth.checkPassword(input);
+  if(!entry){
+    errorEl.textContent="❌ Неверный пароль";
+    document.getElementById("auth-password").value="";
+    return;
+  }
+  const session=Auth.startSession(entry);
+  state.session=session;
+  errorEl.textContent="";
+  document.getElementById("auth-password").value="";
+  applySession();
+  showScreen("theory");
+});
+
+document.getElementById("auth-password").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter") document.getElementById("auth-submit").click();
+});
+
+document.getElementById("logout-btn").addEventListener("click",()=>{
+  if(!confirm("Выйти из тренажёра?")) return;
+  Auth.endSession();
+  state.session=null;
+  showScreen("auth");
+});
+
+// ═══════════════════════════════════════════════════════════════
+// АДМИН-ПАНЕЛЬ
+// ═══════════════════════════════════════════════════════════════
+document.getElementById("open-admin-btn").addEventListener("click",()=>{
+  if(!state.session || !state.session.isAdmin) return;
+  renderAdminPanel();
+  showScreen("admin");
+});
+
+document.getElementById("admin-back-btn").addEventListener("click",()=>{
+  showScreen("theory");
+});
+
+function renderAdminPanel(){
+  const tbody=document.getElementById("admin-pass-tbody");
+  const passwords=Auth.getPasswords();
+  const adminPass=Auth.getAdminPass();
+  tbody.innerHTML="";
+  Object.keys(passwords).forEach(pass=>{
+    const entry=passwords[pass];
+    const tr=document.createElement("tr");
+    const passDisplay=pass.length>4 ? pass.slice(0,3)+"***" : pass;
+    tr.innerHTML=`
+      <td>${passDisplay}</td>
+      <td>${entry.days} дн.</td>
+      <td>
+        <div class="admin-row-actions">
+          <button class="mini-btn" data-copy="${pass}">📋 Копировать</button>
+          <button class="mini-btn danger" data-delete="${pass}">🗑</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // Также показать пароль админа
+  const trAdmin=document.createElement("tr");
+  trAdmin.innerHTML=`
+    <td>${adminPass.length>4 ? adminPass.slice(0,3)+"***" : adminPass} (админ)</td>
+    <td>∞</td>
+    <td><button class="mini-btn" data-copy="${adminPass}">📋 Копировать</button></td>
+  `;
+  tbody.appendChild(trAdmin);
+
+  // Обработчики
+  tbody.querySelectorAll("[data-copy]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      navigator.clipboard.writeText(btn.dataset.copy).then(()=>{
+        btn.textContent="✅ Скопировано";
+        setTimeout(()=>btn.textContent="📋 Копировать",1500);
+      });
+    });
+  });
+  tbody.querySelectorAll("[data-delete]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      if(!confirm("Удалить пароль "+btn.dataset.delete+"?")) return;
+      Auth.deletePassword(btn.dataset.delete);
+      renderAdminPanel();
+    });
+  });
+}
+
+document.getElementById("create-pass-btn").addEventListener("click",()=>{
+  const pass=document.getElementById("new-pass-input").value.trim();
+  const days=parseInt(document.getElementById("new-pass-days").value);
+  const msg=document.getElementById("create-pass-msg");
+  if(!pass || pass.length<3){msg.style.color="#ff5c5c";msg.textContent="Пароль слишком короткий (мин. 3 символа)";return;}
+  if(!days || days<1){msg.style.color="#ff5c5c";msg.textContent="Укажите срок в днях (мин. 1)";return;}
+  Auth.createPassword(pass, days);
+  msg.style.color="#4ade80";
+  msg.textContent=`✅ Пароль «${pass}» создан на ${days} дн.`;
+  document.getElementById("new-pass-input").value="";
+  document.getElementById("new-pass-days").value="";
+  renderAdminPanel();
+  setTimeout(()=>msg.textContent="",3000);
+});
+
+document.getElementById("change-admin-btn").addEventListener("click",()=>{
+  const newPass=document.getElementById("new-admin-pass").value.trim();
+  const msg=document.getElementById("admin-pass-msg");
+  if(!newPass || newPass.length<4){msg.style.color="#ff5c5c";msg.textContent="Минимум 4 символа";return;}
+  if(!confirm("Сменить пароль админа на «"+newPass+"»? Старый перестанет работать.")) return;
+  Auth.setAdminPass(newPass);
+  msg.style.color="#4ade80";
+  msg.textContent="✅ Пароль админа изменён";
+  document.getElementById("new-admin-pass").value="";
+  renderAdminPanel();
+  setTimeout(()=>msg.textContent="",3000);
+});
+
+document.getElementById("reset-admin-btn").addEventListener("click",()=>{
+  if(!confirm("Сбросить ВСЕ пароли и вернуть заводские? Текущая сессия тоже завершится.")) return;
+  Auth.resetAll();
+  state.session=null;
+  showScreen("auth");
+});
+
+// ═══════════════════════════════════════════════════════════════
+// ИГРА
+// ═══════════════════════════════════════════════════════════════
 document.getElementById("start-btn").addEventListener("click",startGame);
 
 function startGame(){
-  // Случайный соперник и мотив
   const types=Object.keys(OPPONENT_TYPES);
   const motives=Object.keys(MOTIVES);
   state.opponentType=types[Math.floor(Math.random()*types.length)];
   state.motive=motives[Math.floor(Math.random()*motives.length)];
-
   state.rounds=[...SCRIPTS[state.opponentType]];
   state.pressure=50;
   state.deal=10;
@@ -619,44 +813,43 @@ function startGame(){
   state.guessedMotive=null;
   state.typeCorrect=false;
   state.motiveCorrect=false;
-
+  state.aiMode=false;
+  state.aiHistory=[];
   document.getElementById("dialog").innerHTML="";
   document.getElementById("hint-content").classList.add("hidden");
+  document.getElementById("ai-block").classList.add("hidden");
+  document.getElementById("ai-input").value="";
+  document.getElementById("ai-toggle-btn").classList.remove("active");
   document.getElementById("hints-left").textContent=state.hintsLeft;
   document.getElementById("round-num").textContent="1";
   document.getElementById("opp-icon").textContent="❓";
   document.getElementById("opp-name").textContent="Неизвестный соперник";
-
   updateStats();
   showScreen("game");
   renderRound(0);
   startTimer();
 }
 
-// ============================================================
-// ТАЙМЕР (30 сек средний)
-// ============================================================
 function startTimer(){
   clearInterval(state.timer);
-  state.timeLeft=30;
+  state.timeLeft=40;
   updateTimerDisplay();
   state.timer=setInterval(()=>{
     state.timeLeft--;
     updateTimerDisplay();
     if(state.timeLeft===15){appendDialog("⏰ Соперник: Время идёт. Я жду.","system-msg")}
-    if(state.timeLeft<=5){appendDialog("🔥 Соперник: "+state.timeLeft+" секунд.","system-msg")}
+    if(state.timeLeft<=5 && state.timeLeft>0){appendDialog("🔥 Соперник: "+state.timeLeft+" секунд.","system-msg")}
     if(state.timeLeft<=0){clearInterval(state.timer);handleTimeout()}
   },1000);
 }
 function updateTimerDisplay(){
-  const pct=state.timeLeft/30;
+  const pct=state.timeLeft/40;
   const t=document.getElementById("timer");
   t.textContent="00:"+String(state.timeLeft).padStart(2,"0");
   t.classList.remove("warning","danger");
   if(pct<=.33) t.classList.add("danger");
   else if(pct<=.66) t.classList.add("warning");
 }
-
 function handleTimeout(){
   if(state.gameOver) return;
   state.pressure=Math.min(100,state.pressure+15);
@@ -667,32 +860,22 @@ function handleTimeout(){
   nextRound();
 }
 
-// ============================================================
-// РАУНД
-// ============================================================
 function renderRound(idx){
   const round=state.rounds[idx];
-  if(!round){endGame("win","Вы прошли все 10 раундов!");return}
+  if(!round){endGame("win","Вы прошли все раунды!");return}
   document.getElementById("round-num").textContent=(idx+1);
   appendDialog(round.line,"opponent");
-
-  // Случайное событие (30% кроме первого/последнего)
   if(idx>0 && idx<state.rounds.length-1 && Math.random()<0.3){
     const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
     appendDialog(ev.text,"event-msg");
     state.pressure=Math.max(0,Math.min(100,state.pressure+(ev.effect.pressure||0)));
     updateStats();
   }
-
   document.getElementById("hint-content").classList.add("hidden");
   document.getElementById("hint-content").textContent=round.hint;
-
   const choicesEl=document.getElementById("choices");
   choicesEl.innerHTML="";
-  let choices=[...round.choices];
-  // Перемешивание (обязательно для честности)
-  choices=choices.sort(()=>Math.random()-0.5);
-
+  let choices=[...round.choices].sort(()=>Math.random()-0.5);
   const letters=["A","B","C","D"];
   choices.forEach((c,i)=>{
     const btn=document.createElement("button");
@@ -708,44 +891,35 @@ function appendDialog(text,type){
   if(type==="opponent"){div.innerHTML=`<span class="speaker">❓ Соперник:</span> ${text}`}
   else if(type==="player"){div.innerHTML=`<span class="player-reply">💼 Вы:</span> ${text}`}
   else if(type==="event-msg"){div.innerHTML=`<span class="event-msg">🎲 ${text}</span>`}
+  else if(type==="ai-reply"){div.innerHTML=`<span class="ai-reply">🎤 AI-ответ:</span> ${text}`}
   else{div.innerHTML=`<span class="system-msg">${text}</span>`}
   const dialog=document.getElementById("dialog");
   dialog.appendChild(div);
   dialog.scrollTop=dialog.scrollHeight;
 }
 
-// ============================================================
-// ВЫБОР ОТВЕТА
-// ============================================================
 function handleChoice(choice){
   if(state.gameOver) return;
   clearInterval(state.timer);
   appendDialog(choice.text,"player");
-
+  state.aiHistory.push({role:"user",content:choice.text});
   state.pressure=Math.max(0,Math.min(100,state.pressure+(choice.effects.pressure||0)));
   state.deal=Math.max(0,Math.min(100,state.deal+(choice.effects.deal||0)));
   state.survival=Math.max(0,Math.min(100,state.survival+(choice.effects.survival||0)));
   updateStats();
-
   if(state.survival<=0){setTimeout(()=>endGame("lose","Вы не выдержали давления."),700);return}
-
-  // 50% — соперник добавляет манипуляцию
   let response=choice.response;
   if(Math.random()<0.5){
     const manip=MANIPULATIONS[Math.floor(Math.random()*MANIPULATIONS.length)];
     response+=" "+manip;
   }
-
+  state.aiHistory.push({role:"assistant",content:response});
   setTimeout(()=>{
     appendDialog(response,"opponent");
     setTimeout(()=>{
       state.round++;
-      if(state.round>=state.rounds.length){
-        endGame("win","Вы прошли все раунды!");
-      } else {
-        renderRound(state.round);
-        startTimer();
-      }
+      if(state.round>=state.rounds.length){endGame("win","Вы прошли все раунды!")}
+      else{renderRound(state.round);startTimer()}
     },1200);
   },700);
 }
@@ -762,9 +936,191 @@ function updateStats(){
   document.getElementById("survival-bar").style.width=state.survival+"%";
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════════════════════════
+function buildAIPrompt(playerReply){
+  const typeDesc=TYPE_PROMPTS[state.opponentType];
+  const motiveDesc={
+    economy:"Мотив — ЭКОНОМИЯ: тебе важна выгода, скидки, лучшая цена.",
+    safety:"Мотив — БЕЗОПАСНОСТЬ: тебе важны гарантии, стабильность, чтобы не рисковать.",
+    prestige:"Мотив — ПРЕСТИЖ: тебе важно быть «лучшим», показать руководству, статус.",
+    comfort:"Мотив — КОМФОРТ: тебе важно удобство, простота, чтобы никто не трогал.",
+  }[state.motive];
+  const historyStr=state.aiHistory.slice(-6).map(h=>`${h.role==="user"?"Продавец":"Ты"}: ${h.content}`).join("\n");
+  return `${typeDesc}
+${motiveDesc}
+
+Текущее давление: ${state.pressure}/100. Прогресс сделки: ${state.deal}/100. Выживание продавца: ${state.survival}/100.
+
+${historyStr}
+Продавец: ${playerReply}
+
+Ответь как этот переговорщик на последнюю реплику. Коротко (1-3 предложения). На русском. Не поясняй. Если давление >70 — угрожай уйти. Если <30 — уважай продавца.`;
+}
+
+async function sendToAI(playerReply){
+  try {
+    const res=await fetch(HF_URL,{
+      method:"POST",
+      headers:{"Authorization":`Bearer ${HF_TOKEN}`,"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:HF_MODEL,
+        messages:[{role:"user",content:buildAIPrompt(playerReply)}],
+        max_tokens:150,
+        temperature:0.8,
+      })
+    });
+    if(!res.ok){console.error("HF error:",await res.text());return null}
+    const data=await res.json();
+    if(data.choices && data.choices[0]) return data.choices[0].message.content.trim();
+    return null;
+  } catch(e){console.error("AI fetch error:",e);return null}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ГОЛОСОВОЙ ВВОД (Web Speech API)
+// ═══════════════════════════════════════════════════════════════
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition=null;
+let isRecording=false;
+
+if(SpeechRecognition){
+  recognition=new SpeechRecognition();
+  recognition.lang="ru-RU";
+  recognition.continuous=true;
+  recognition.interimResults=true;
+
+  recognition.onresult=(event)=>{
+    let finalTranscript="";
+    let interimTranscript="";
+    for(let i=event.resultIndex; i<event.results.length; i++){
+      const transcript=event.results[i][0].transcript;
+      if(event.results[i].isFinal) finalTranscript+=transcript+" ";
+      else interimTranscript+=transcript;
+    }
+    const input=document.getElementById("ai-input");
+    if(finalTranscript){
+      input.value=(input.value+" "+finalTranscript).trim();
+    }
+  };
+
+  recognition.onerror=(e)=>{
+    console.error("Speech error:",e.error);
+    stopRecording();
+  };
+
+  recognition.onend=()=>{
+    if(isRecording){
+      // Авто-перезапуск при естественной паузе
+      try{recognition.start();}catch(e){stopRecording();}
+    }
+  };
+}
+
+function startRecording(){
+  if(!recognition){
+    alert("Голосовой ввод не поддерживается вашим браузером. Используйте Chrome, Edge или Yandex.Browser.");
+    return;
+  }
+  try{
+    recognition.start();
+    isRecording=true;
+    document.getElementById("mic-btn").classList.add("recording");
+  }catch(e){console.error(e);}
+}
+
+function stopRecording(){
+  isRecording=false;
+  document.getElementById("mic-btn").classList.remove("recording");
+  try{recognition && recognition.stop();}catch(e){}
+}
+
+document.getElementById("mic-btn").addEventListener("click",()=>{
+  if(isRecording) stopRecording();
+  else startRecording();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// AI UI
+// ═══════════════════════════════════════════════════════════════
+document.getElementById("ai-toggle-btn").addEventListener("click",()=>{
+  if(state.gameOver) return;
+  state.aiMode=!state.aiMode;
+  const block=document.getElementById("ai-block");
+  const btn=document.getElementById("ai-toggle-btn");
+  if(state.aiMode){
+    block.classList.remove("hidden");
+    btn.classList.add("active");
+    document.getElementById("ai-input").focus();
+  } else {
+    block.classList.add("hidden");
+    btn.classList.remove("active");
+    stopRecording();
+  }
+});
+
+document.getElementById("ai-cancel-btn").addEventListener("click",()=>{
+  state.aiMode=false;
+  document.getElementById("ai-block").classList.add("hidden");
+  document.getElementById("ai-toggle-btn").classList.remove("active");
+  stopRecording();
+});
+
+document.getElementById("ai-send-btn").addEventListener("click",async()=>{
+  if(state.gameOver) return;
+  stopRecording();
+  const input=document.getElementById("ai-input");
+  const text=input.value.trim();
+  if(!text) return;
+  clearInterval(state.timer);
+  appendDialog(text,"player");
+  state.aiHistory.push({role:"user",content:text});
+  input.value="";
+  input.disabled=true;
+  document.getElementById("ai-send-btn").disabled=true;
+  document.getElementById("mic-btn").disabled=true;
+  const loading=document.createElement("div");
+  loading.className="loading-indicator";
+  loading.textContent="AI-соперник думает...";
+  document.getElementById("dialog").appendChild(loading);
+  document.getElementById("dialog").scrollTop=999999;
+  const aiReply=await sendToAI(text);
+  loading.remove();
+  input.disabled=false;
+  document.getElementById("ai-send-btn").disabled=false;
+  document.getElementById("mic-btn").disabled=false;
+  const finalReply=aiReply || "[соперник отвлёкся] Извините, продолжим. Что вы говорили?";
+  appendDialog(finalReply,"ai-reply");
+  state.aiHistory.push({role:"assistant",content:finalReply});
+  applyAILogic(text);
+  setTimeout(()=>{
+    state.round++;
+    if(state.round>=state.rounds.length){endGame("win","Вы прошли все раунды!")}
+    else{renderRound(state.round);startTimer()}
+  },1400);
+});
+
+function applyAILogic(playerText){
+  const lower=playerText.toLowerCase();
+  let dP=0,dD=0,dS=0;
+  if(lower.match(/\?$/)) { dD+=6; dP-=5; }
+  if(lower.match(/(что если|а что|почему|зачем|как вы|расскажите)/)) { dD+=8; dP-=8; }
+  if(lower.match(/(давайте зафиксируем|по пунктам|цифры|конкретн)/)) { dD+=10; dP-=6; }
+  if(lower.match(/(да|хорошо|конечно|согласен)[.!,]/)) { dP+=10; dD-=3; dS-=5; }
+  if(lower.match(/(скидк|дешевл|ниже цены|уступ)/)) { dP+=12; dD-=5; dS-=8; }
+  if(lower.match(/(извин|простите|виноват)/)) { dP+=15; dS-=10; }
+  if(lower.match(/(не могу|не готов|не уверен)/)) { dP+=8; dS-=6; }
+  state.pressure=Math.max(0,Math.min(100,state.pressure+dP));
+  state.deal=Math.max(0,Math.min(100,state.deal+dD));
+  state.survival=Math.max(0,Math.min(100,state.survival+dS));
+  updateStats();
+  if(state.survival<=0){setTimeout(()=>endGame("lose","Вы не выдержали давления."),700)}
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ПОДСКАЗКА
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 document.getElementById("hint-btn").addEventListener("click",()=>{
   if(state.gameOver) return;
   if(state.hintsLeft<=0){
@@ -780,17 +1136,16 @@ document.getElementById("hint-btn").addEventListener("click",()=>{
   document.getElementById("hint-content").classList.remove("hidden");
 });
 
-// ============================================================
-// ФИНАЛ → УГАДАЙКА
-// ============================================================
-function endGame(outcome, message){
+// ═══════════════════════════════════════════════════════════════
+// ФИНАЛ
+// ═══════════════════════════════════════════════════════════════
+function endGame(outcome,message){
   state.gameOver=true;
   clearInterval(state.timer);
+  stopRecording();
   document.getElementById("choices").innerHTML="";
-
+  document.getElementById("ai-block").classList.add("hidden");
   if(outcome==="lose"){showResult(outcome,message);return}
-
-  // Экран угадайки
   const typeGrid=document.getElementById("type-guess-grid");
   typeGrid.innerHTML="";
   Object.keys(OPPONENT_TYPES).forEach(key=>{
@@ -800,7 +1155,6 @@ function endGame(outcome, message){
     b.addEventListener("click",()=>checkType(key,b));
     typeGrid.appendChild(b);
   });
-
   document.getElementById("motive-block").classList.add("hidden");
   document.getElementById("guess-result").classList.add("hidden");
   showScreen("guess");
@@ -811,8 +1165,6 @@ function checkType(key,btn){
   state.guessedType=key;
   state.typeCorrect=(key===state.opponentType);
   btn.classList.add(state.typeCorrect?"correct":"wrong");
-
-  // Показать блок с мотивом
   const motiveGrid=document.getElementById("motive-guess-grid");
   motiveGrid.innerHTML="";
   Object.keys(MOTIVES).forEach(m=>{
@@ -830,64 +1182,58 @@ function checkMotive(key,btn){
   state.guessedMotive=key;
   state.motiveCorrect=(key===state.motive);
   btn.classList.add(state.motiveCorrect?"correct":"wrong");
-
   const t=OPPONENT_TYPES[state.opponentType];
   const m=MOTIVES[state.motive];
-
   let result="";
   result+=`<div style="margin-bottom:8px"><b>Типаж:</b> ${state.typeCorrect?"✅ Угадали":"❌ Не угадали"} — это был ${t.icon} ${t.name}.<br><span style="color:#8899aa;font-size:.9em">${t.hint}</span></div>`;
   result+=`<div><b>Мотив:</b> ${state.motiveCorrect?"✅ Угадали":"❌ Не угадали"} — это был ${m.icon} ${m.name}.<br><span style="color:#8899aa;font-size:.9em">${m.hint}</span></div>`;
   document.getElementById("guess-result").innerHTML=result;
   document.getElementById("guess-result").classList.remove("hidden");
-
   if(state.typeCorrect) state.deal=Math.min(100,state.deal+10);
   else state.deal=Math.max(0,state.deal-5);
   if(state.motiveCorrect) state.deal=Math.min(100,state.deal+15);
   else state.deal=Math.max(0,state.deal-10);
-
   setTimeout(()=>showResult("win","Вы прошли переговоры!"),4000);
 }
 
-// ============================================================
-// РЕЗУЛЬТАТ
-// ============================================================
 function showResult(outcome,message){
   const baseScore=(state.deal*0.4)+(state.survival*0.4)+((100-state.pressure)*0.2);
   const hintPenalty=state.hintsUsed*5;
   const finalScore=Math.max(0,Math.round(baseScore-hintPenalty));
-
   const icons={win:"🏆",lose:"💀"};
   const titles={win:"Победа!",lose:"Поражение"};
   document.getElementById("result-icon").textContent=icons[outcome]||"🏆";
   document.getElementById("result-title").textContent=titles[outcome]||"Результат";
   document.getElementById("result-subtitle").textContent=message+` Итоговый балл: ${finalScore}/100.`;
-
   document.getElementById("result-stats").innerHTML=`
     <div class="result-stat"><div class="result-stat-label">Давление</div><div class="result-stat-value pressure">${Math.round(state.pressure)}</div></div>
     <div class="result-stat"><div class="result-stat-label">Прогресс</div><div class="result-stat-value deal">${Math.round(state.deal)}</div></div>
     <div class="result-stat"><div class="result-stat-label">Выживание</div><div class="result-stat-value survival">${Math.round(state.survival)}</div></div>
   `;
-
   const t=OPPONENT_TYPES[state.opponentType];
   const m=MOTIVES[state.motive];
   document.getElementById("analysis-content").innerHTML=`
     <div class="analysis-item neutral"><span class="label">📊 База:</span> ${Math.round(baseScore)}/100</div>
     <div class="analysis-item ${hintPenalty>0?"bad":"good"}"><span class="label">💡 Подсказки:</span> ${state.hintsUsed} (−${hintPenalty})</div>
-    <div class="analysis-item ${state.typeCorrect?"good":"bad"}"><span class="label">🎭 Типаж:</span> ${state.typeCorrect?"✅ Угадан":"❌ Не угадан"} — ${t.icon} ${t.name}</div>
-    <div class="analysis-item ${state.motiveCorrect?"good":"bad"}"><span class="label">💰 Мотив:</span> ${state.motiveCorrect?"✅ Угадан":"❌ Не угадан"} — ${m.icon} ${m.name}</div>
+    <div class="analysis-item ${state.typeCorrect?"good":"bad"}"><span class="label">🎭 Типаж:</span> ${state.typeCorrect?"✅":"❌"} — ${t.icon} ${t.name}</div>
+    <div class="analysis-item ${state.motiveCorrect?"good":"bad"}"><span class="label">💰 Мотив:</span> ${state.motiveCorrect?"✅":"❌"} — ${m.icon} ${m.name}</div>
     <div class="analysis-item ${finalScore>=70?"good":finalScore>=40?"neutral":"bad"}"><span class="label">🎯 Итог:</span> ${finalScore}/100</div>
   `;
-
   showScreen("result");
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 // КНОПКИ
-// ============================================================
+// ═══════════════════════════════════════════════════════════════
 document.getElementById("play-again-btn").addEventListener("click",startGame);
 document.getElementById("back-to-theory").addEventListener("click",()=>{clearInterval(state.timer);state.gameOver=true;showScreen("theory")});
-document.getElementById("home-btn").addEventListener("click",()=>{clearInterval(state.timer);state.gameOver=true;showScreen("theory")});
-document.getElementById("restart-btn").addEventListener("click",startGame);
+document.getElementById("home-btn").addEventListener("click",()=>{clearInterval(state.timer);stopRecording();state.gameOver=true;showScreen("theory")});
+document.getElementById("restart-btn").addEventListener("click",()=>{stopRecording();startGame()});
+
+// ═══════════════════════════════════════════════════════════════
+// СТАРТ
+// ═══════════════════════════════════════════════════════════════
+checkAuth();
 </script>
 </body>
 </html>
